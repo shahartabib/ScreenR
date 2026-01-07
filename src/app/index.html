@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScreenR Studio - יצירת סרטוני הדרכה</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #0a0a0f;
+      --bg-dark: #12121a;
+      --bg-card: #1a1a24;
+      --bg-elevated: #22222e;
+      --accent: #00d4aa;
+      --accent-glow: rgba(0, 212, 170, 0.3);
+      --accent-dim: #00a88a;
+      --text-primary: #f0f0f5;
+      --text-secondary: #8888a0;
+      --text-muted: #5a5a70;
+      --border: #2a2a38;
+      --border-light: #3a3a4a;
+      --error: #ff4466;
+      --warning: #ffaa00;
+      --success: #00dd88;
+      --gradient-accent: linear-gradient(135deg, #00d4aa 0%, #00a8dd 100%);
+      --gradient-dark: linear-gradient(180deg, #12121a 0%, #0a0a0f 100%);
+      --shadow-glow: 0 0 40px rgba(0, 212, 170, 0.15);
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Heebo', 'Outfit', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background Effects */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 212, 170, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow-1 { top: -200px; right: -100px; }
+    .bg-glow-2 { bottom: -300px; left: -200px; opacity: 0.5; }
+
+    /* App Container */
+    .app {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      background: rgba(18, 18, 26, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--gradient-accent);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .logo-icon svg {
+      width: 26px;
+      height: 26px;
+      fill: var(--bg-deep);
+    }
+
+    .logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(0, 212, 170, 0.1);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 212, 170, 0.2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border-color: var(--border-light);
+    }
+
+    .nav-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--bg-dark);
+      border-left: 1px solid var(--border);
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-section {
+      padding: 0 20px;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+    }
+
+    .project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .project-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: right;
+      width: 100%;
+    }
+
+    .project-item:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .project-item.active {
+      background: rgba(0, 212, 170, 0.1);
+      color: var(--accent);
+    }
+
+    .project-item-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .project-item-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .project-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .project-item-name {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .project-item-date {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .new-project-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: calc(100% - 40px);
+      margin: 0 20px;
+      padding: 14px;
+      background: var(--gradient-accent);
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--bg-deep);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .new-project-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 212, 170, 0.3);
+    }
+
+    .new-project-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+    }
+
+    /* Content Area */
+    .content {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    /* View: Home */
+    .view-home {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .home-hero {
+      text-align: center;
+      padding: 60px 0 50px;
+    }
+
+    .home-hero h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+
+    .home-hero h1 span {
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .home-hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* Create Form */
+    .create-form {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .form-section {
+      margin-bottom: 32px;
+    }
+
+    .form-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .form-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 16px 20px;
+      background: var(--bg-dark);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 15px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+
+    .form-textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* Credentials Section */
+    .credentials-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: var(--bg-dark);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .credentials-toggle:hover {
+      border-color: var(--border-light);
+    }
+
+    .credentials-toggle.active {
+      border-color: var(--accent);
+      background: rgba(0, 212, 170, 0.05);
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: var(--bg-elevated);
+      border-radius: 12px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .credentials-toggle.active .toggle-switch {
+      background: var(--accent);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      top: 3px;
+      right: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .credentials-toggle.active .toggle-switch::after {
+      right: 23px;
+    }
+
+    .toggle-text {
+      flex: 1;
+    }
+
+    .toggle-title {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .toggle-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .credentials-fields {
+      display: none;
+      margin-top: 16px;
+      padding: 20px;
+      background: var(--bg-dark);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .credentials-fields.show {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .credentials-fields .form-row {
+      margin-bottom: 0;
+    }
+
+    .credentials-warning {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255, 170, 0, 0.1);
+      border: 1px solid rgba(255, 170, 0, 0.2);
+      border-radius: var(--radius-sm);
+      margin-top: 16px;
+    }
+
+    .credentials-warning svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--warning);
+      fill: none;
+      stroke-width: 2;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .credentials-warning p {
+      font-size: 13px;
+      color: var(--warning);
+      line-height: 1.5;
+    }
+
+    /* Submit Button */
+    .submit-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .submit-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .submit-info svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .submit-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 32px;
+      background: var(--gradient-accent);
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--bg-deep);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 212, 170, 0.35);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .submit-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+    }
+
+    /* View: Editor */
+    .view-editor {
+      display: none;
+      height: calc(100vh - 85px);
+    }
+
+    .view-editor.active {
+      display: flex;
+    }
+
+    .editor-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Preview Area */
+    .preview-container {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--bg-dark);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .preview-title {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .preview-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .preview-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .preview-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-light);
+    }
+
+    .preview-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .preview-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      position: relative;
+    }
+
+    .preview-placeholder {
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .preview-placeholder svg {
+      width: 64px;
+      height: 64px;
+      stroke: var(--text-muted);
+      fill: none;
+      stroke-width: 1.5;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Timeline */
+    .timeline-container {
+      height: 180px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+
+    .timeline-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .timeline-time {
+      font-family: 'Outfit', monospace;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--bg-dark);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+    }
+
+    .timeline-track {
+      height: 60px;
+      background: var(--bg-dark);
+      border-radius: var(--radius-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timeline-steps {
+      display: flex;
+      height: 100%;
+      gap: 4px;
+      padding: 8px;
+    }
+
+    .timeline-step {
+      flex: 1;
+      background: var(--bg-elevated);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: 2px solid transparent;
+    }
+
+    .timeline-step:hover {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+    }
+
+    .timeline-step.active {
+      background: rgba(0, 212, 170, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .timeline-scrubber {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .timeline-scrubber input[type="range"] {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      background: var(--bg-dark);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .timeline-scrubber input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    /* Editor Sidebar */
+    .editor-sidebar {
+      width: 360px;
+      background: var(--bg-dark);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      margin-right: 20px;
+    }
+
+    .editor-sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .editor-sidebar-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .editor-sidebar-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .steps-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .step-card:hover {
+      border-color: var(--border-light);
+    }
+
+    .step-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      background: var(--bg-elevated);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .step-card.active .step-number {
+      background: var(--accent);
+      color: var(--bg-deep);
+    }
+
+    .step-action {
+      flex: 1;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .step-action span {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .step-field-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .step-description {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .step-thumbnail {
+      width: 100%;
+      height: 80px;
+      background: var(--bg-dark);
+      border-radius: var(--radius-sm);
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .step-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Progress Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 48px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+    }
+
+    .modal-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--gradient-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--accent-glow); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 20px transparent; }
+    }
+
+    .modal-icon svg {
+      width: 40px;
+      height: 40px;
+      stroke: var(--bg-deep);
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .modal h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .modal p {
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--bg-dark);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--gradient-accent);
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .progress-text span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      animation: slideIn 0.3s ease;
+      min-width: 320px;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .toast-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .toast-icon svg {
+      width: 14px;
+      height: 14px;
+      stroke: white;
+      fill: none;
+      stroke-width: 2.5;
+    }
+
+    .toast.success .toast-icon { background: var(--success); }
+    .toast.error .toast-icon { background: var(--error); }
+    .toast.warning .toast-icon { background: var(--warning); }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .toast-message {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Project View */
+    .view-project {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .project-header {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .back-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .back-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      transform: rotate(180deg);
+    }
+
+    .project-info {
+      flex: 1;
+    }
+
+    .project-info h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .project-url {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .add-tutorial-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      background: var(--gradient-accent);
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--bg-deep);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .add-tutorial-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 212, 170, 0.3);
+    }
+
+    .add-tutorial-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+    }
+
+    .tutorials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .tutorial-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tutorial-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-card);
+    }
+
+    .tutorial-card.recording {
+      border-color: var(--accent);
+    }
+
+    .tutorial-thumbnail {
+      height: 180px;
+      background: var(--bg-dark);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tutorial-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .tutorial-thumbnail-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-elevated) 100%);
+    }
+
+    .tutorial-thumbnail-placeholder svg {
+      width: 48px;
+      height: 48px;
+      stroke: var(--text-muted);
+      fill: none;
+      stroke-width: 1.5;
+      opacity: 0.4;
+    }
+
+    .tutorial-status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .tutorial-status.ready {
+      background: rgba(0, 221, 136, 0.2);
+      color: var(--success);
+    }
+
+    .tutorial-status.recording {
+      background: rgba(0, 212, 170, 0.2);
+      color: var(--accent);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .tutorial-status.processing {
+      background: rgba(255, 170, 0, 0.2);
+      color: var(--warning);
+    }
+
+    .tutorial-status.error {
+      background: rgba(255, 68, 102, 0.2);
+      color: var(--error);
+    }
+
+    .tutorial-status.draft {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+
+    .tutorial-duration {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      padding: 4px 10px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: 'Outfit', monospace;
+      color: white;
+    }
+
+    .tutorial-content {
+      padding: 20px;
+    }
+
+    .tutorial-title {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .tutorial-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .tutorial-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .tutorial-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .tutorial-meta-item svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .empty-tutorials {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 40px;
+      background: var(--bg-card);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-xl);
+    }
+
+    .empty-tutorials svg {
+      width: 64px;
+      height: 64px;
+      stroke: var(--text-muted);
+      fill: none;
+      stroke-width: 1.5;
+      margin-bottom: 20px;
+      opacity: 0.4;
+    }
+
+    .empty-tutorials h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .empty-tutorials p {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 400px;
+      margin: 0 auto 24px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .sidebar { width: 240px; }
+      .editor-sidebar { width: 320px; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .header { padding: 16px 24px; }
+      .content { padding: 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      .home-hero h1 { font-size: 36px; }
+      .tutorials-grid { grid-template-columns: 1fr; }
+      .project-header { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Effects -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <span class="logo-text">ScreenR</span>
+        <span class="logo-badge">Studio</span>
+      </div>
+      <nav class="header-nav">
+        <button class="nav-btn" onclick="showView('home')">
+          <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          בית
+        </button>
+        <button class="nav-btn">
+          <svg viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+          הגדרות
+        </button>
+      </nav>
+    </header>
+
+    <main class="main">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">פרויקטים אחרונים</h3>
+          <div class="project-list" id="projectList">
+            <div class="project-item">
+              <div class="project-item-icon">
+                <svg viewBox="0 0 24 24"><path d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+              </div>
+              <div class="project-item-info">
+                <div class="project-item-name">הרשמה לאתר מכרזים</div>
+                <div class="project-item-date">היום, 00:37</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="new-project-btn" onclick="showView('home')">
+          <svg viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          פרויקט חדש
+        </button>
+      </aside>
+
+      <!-- Content Area -->
+      <div class="content">
+        <!-- Home View -->
+        <div class="view-home" id="viewHome">
+          <div class="home-hero">
+            <h1>צור פרויקט הדרכות <span>חדש</span></h1>
+            <p>התחל פרויקט חדש עבור אפליקציה או אתר, ולאחר מכן הוסף כמה סרטוני הדרכה שתרצה</p>
+          </div>
+
+          <form class="create-form" id="createForm" onsubmit="handleCreateProject(event)">
+            <div class="form-section">
+              <label class="form-label">שם הפרויקט</label>
+              <input
+                type="text"
+                class="form-input"
+                id="projectNameInput"
+                placeholder="לדוגמה: Gmail, אתר המכרזים הממשלתי"
+                required
+              >
+              <p class="form-hint">בחר שם מתאר לאפליקציה או לאתר עבורם תיצור את ההדרכות</p>
+            </div>
+
+            <div class="form-section">
+              <label class="form-label">כתובת האתר</label>
+              <input
+                type="url"
+                class="form-input"
+                id="urlInput"
+                placeholder="https://example.com"
+                required
+              >
+            </div>
+
+            <div class="form-section">
+              <label class="form-label">תיאור (אופציונלי)</label>
+              <textarea
+                class="form-input form-textarea"
+                id="descriptionInput"
+                placeholder="תיאור קצר של הפרויקט..."
+                style="min-height: 80px;"
+              ></textarea>
+            </div>
+
+            <div class="form-section submit-section">
+              <div class="submit-info">
+                <svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>לאחר יצירת הפרויקט תוכל להוסיף סרטונים</span>
+              </div>
+              <button type="submit" class="submit-btn" id="submitBtn">
+                <svg viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                צור פרויקט
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Project View -->
+        <div class="view-project" id="viewProject" style="display: none;">
+          <div class="project-header">
+            <button class="back-btn" onclick="showView('home')">
+              <svg viewBox="0 0 24 24"><path d="M9 19l7-7-7-7"/></svg>
+              חזרה לרשימה
+            </button>
+            <div class="project-info">
+              <h1 id="projectName">שם הפרויקט</h1>
+              <p id="projectUrl" class="project-url">https://example.com</p>
+            </div>
+            <button class="add-tutorial-btn" onclick="showAddTutorialModal()">
+              <svg viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+              הוסף סרטון
+            </button>
+          </div>
+
+          <div class="tutorials-grid" id="tutorialsGrid">
+            <!-- Tutorials will be added here -->
+          </div>
+        </div>
+
+        <!-- Editor View -->
+        <div class="view-editor" id="viewEditor">
+          <aside class="editor-sidebar">
+            <div class="editor-sidebar-header">
+              <button class="back-btn" onclick="backToProject()" style="margin-bottom: 16px;">
+                <svg viewBox="0 0 24 24"><path d="M9 19l7-7-7-7"/></svg>
+                חזרה לפרויקט
+              </button>
+              <h2 class="editor-sidebar-title">שלבי ההדרכה</h2>
+              <p class="editor-sidebar-subtitle">לחץ על שלב לעריכה</p>
+            </div>
+            <div class="steps-list" id="stepsList">
+              <!-- Steps will be added here -->
+            </div>
+          </aside>
+
+          <div class="editor-main">
+            <div class="preview-container">
+              <div class="preview-header">
+                <span class="preview-title">תצוגה מקדימה</span>
+                <div class="preview-controls">
+                  <button class="preview-btn" title="הפעל">
+                    <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  </button>
+                  <button class="preview-btn" title="מסך מלא">
+                    <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="preview-content">
+                <div class="preview-placeholder">
+                  <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+                  <p>בחר שלב לתצוגה מקדימה</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-container">
+              <div class="timeline-header">
+                <span class="timeline-title">ציר זמן</span>
+                <span class="timeline-time">00:00 / 00:18</span>
+              </div>
+              <div class="timeline-track">
+                <div class="timeline-steps" id="timelineSteps">
+                  <!-- Timeline steps will be added here -->
+                </div>
+              </div>
+              <div class="timeline-scrubber">
+                <input type="range" min="0" max="100" value="0">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Tutorial Modal -->
+  <div class="modal-overlay" id="addTutorialModal">
+    <div class="modal" style="max-width: 560px;">
+      <h2 style="margin-bottom: 8px;">הוסף סרטון לפרויקט</h2>
+      <p style="color: var(--text-muted); margin-bottom: 28px;">צור סרטון הדרכה חדש בפרויקט הנוכחי</p>
+
+      <form id="addTutorialForm" onsubmit="handleAddTutorial(event)">
+        <div class="form-section">
+          <label class="form-label">כותרת הסרטון</label>
+          <input type="text" class="form-input" id="tutorialTitle" placeholder="לדוגמה: יצירת פילטר" required>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">מה לבצע?</label>
+          <textarea
+            class="form-input form-textarea"
+            id="tutorialPrompt"
+            placeholder="תאר את התהליך שאתה רוצה להדגים..."
+            required
+            style="min-height: 100px;"
+          ></textarea>
+        </div>
+
+        <div class="form-section" style="margin-bottom: 0;">
+          <div class="credentials-toggle" id="tutorialCredentialsToggle" onclick="toggleTutorialCredentials()">
+            <div class="toggle-switch"></div>
+            <div class="toggle-text">
+              <div class="toggle-title">נדרשת התחברות</div>
+              <div class="toggle-desc">הפעל אם יש צורך בהתחברות</div>
+            </div>
+          </div>
+
+          <div class="credentials-fields" id="tutorialCredentialsFields">
+            <div class="form-row">
+              <div>
+                <label class="form-label">שם משתמש / אימייל</label>
+                <input type="text" class="form-input" id="tutorialUsername" placeholder="user@example.com">
+              </div>
+              <div>
+                <label class="form-label">סיסמה</label>
+                <input type="password" class="form-input" id="tutorialPassword" placeholder="••••••••">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 28px;">
+          <button type="button" class="nav-btn" onclick="hideAddTutorialModal()">ביטול</button>
+          <button type="submit" class="submit-btn" style="padding: 12px 28px;">
+            <svg viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            צור סרטון
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Progress Modal -->
+  <div class="modal-overlay" id="progressModal">
+    <div class="modal">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+      </div>
+      <h2>יוצר את הסרטון</h2>
+      <p id="progressMessage">מפעיל דפדפן ופותח את האתר...</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p class="progress-text"><span id="progressPercent">0%</span> הושלם</p>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // State
+    let currentView = 'home';
+    let credentialsEnabled = false;
+    let projects = [];
+    let currentProject = null;
+    let currentTutorial = null;
+
+    // View Management
+    function showView(view) {
+      currentView = view;
+      document.getElementById('viewHome').style.display = view === 'home' ? 'block' : 'none';
+      document.getElementById('viewProject').style.display = view === 'project' ? 'block' : 'none';
+      document.getElementById('viewEditor').classList.toggle('active', view === 'editor');
+    }
+
+    // Tutorial credentials toggle
+    let tutorialCredentialsEnabled = false;
+
+    function toggleTutorialCredentials() {
+      tutorialCredentialsEnabled = !tutorialCredentialsEnabled;
+      const toggle = document.getElementById('tutorialCredentialsToggle');
+      const fields = document.getElementById('tutorialCredentialsFields');
+
+      toggle.classList.toggle('active', tutorialCredentialsEnabled);
+      fields.classList.toggle('show', tutorialCredentialsEnabled);
+    }
+
+    // Create new project
+    async function handleCreateProject(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('projectNameInput').value;
+      const targetUrl = document.getElementById('urlInput').value;
+      const description = document.getElementById('descriptionInput').value;
+
+      try {
+        const response = await fetch('/api/projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, targetUrl, description }),
+        });
+
+        if (!response.ok) throw new Error('Failed to create project');
+
+        const project = await response.json();
+        showToast('success', 'הפרויקט נוצר בהצלחה!', 'כעת תוכל להוסיף סרטוני הדרכה');
+
+        // Reset form
+        document.getElementById('createForm').reset();
+
+        // Load projects and open the new project
+        await loadProjectsList();
+        await openProject(project.id);
+
+      } catch (error) {
+        showToast('error', 'שגיאה ביצירת הפרויקט', error.message);
+      }
+    }
+
+    // Add tutorial modal
+    function showAddTutorialModal() {
+      document.getElementById('addTutorialModal').classList.add('active');
+      document.getElementById('addTutorialForm').reset();
+      tutorialCredentialsEnabled = false;
+      document.getElementById('tutorialCredentialsToggle').classList.remove('active');
+      document.getElementById('tutorialCredentialsFields').classList.remove('show');
+    }
+
+    function hideAddTutorialModal() {
+      document.getElementById('addTutorialModal').classList.remove('active');
+    }
+
+    // Handle add tutorial
+    async function handleAddTutorial(e) {
+      e.preventDefault();
+
+      if (!currentProject) return;
+
+      const title = document.getElementById('tutorialTitle').value;
+      const prompt = document.getElementById('tutorialPrompt').value;
+      const username = tutorialCredentialsEnabled ? document.getElementById('tutorialUsername').value : null;
+      const password = tutorialCredentialsEnabled ? document.getElementById('tutorialPassword').value : null;
+
+      hideAddTutorialModal();
+      showProgressModal();
+
+      try {
+        // Start recording via API
+        const response = await fetch(`/api/projects/${currentProject.id}/tutorials`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title,
+            prompt,
+            credentials: tutorialCredentialsEnabled ? { username, password } : undefined,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Failed to start recording');
+
+        const { sessionId } = await response.json();
+
+        // Poll for progress
+        await pollRecordingProgress(sessionId);
+
+      } catch (error) {
+        hideProgressModal();
+        showToast('error', 'שגיאה ביצירת הסרטון', error.message);
+      }
+    }
+
+    // Poll recording progress
+    async function pollRecordingProgress(sessionId) {
+      const poll = async () => {
+        try {
+          const response = await fetch(`/api/recording/${sessionId}`);
+          const recording = await response.json();
+
+          updateProgress(recording.progress, recording.message);
+
+          if (recording.status === 'complete') {
+            showToast('success', 'הסרטון נוצר בהצלחה!', `${recording.steps?.length || 0} שלבים זוהו אוטומטית`);
+            hideProgressModal();
+
+            // Reload the project to show the new tutorial
+            await openProject(currentProject.id);
+            return;
+          }
+
+          if (recording.status === 'error') {
+            throw new Error(recording.error || 'שגיאה לא ידועה');
+          }
+
+          // Continue polling
+          setTimeout(poll, 500);
+        } catch (error) {
+          hideProgressModal();
+          showToast('error', 'שגיאה ביצירת הסרטון', error.message);
+        }
+      };
+
+      await poll();
+    }
+
+    // Open project view
+    async function openProject(projectId) {
+      try {
+        const response = await fetch(`/api/projects/${projectId}`);
+        if (!response.ok) throw new Error('Failed to load project');
+
+        const project = await response.json();
+        currentProject = project;
+
+        // Update project header
+        document.getElementById('projectName').textContent = project.name;
+        document.getElementById('projectUrl').textContent = project.targetUrl;
+
+        // Render tutorials grid
+        renderTutorialsGrid(project.tutorials || []);
+
+        showView('project');
+      } catch (error) {
+        console.error('Error loading project:', error);
+        showToast('error', 'שגיאה בטעינת הפרויקט', error.message);
+      }
+    }
+
+    // Render tutorials grid
+    function renderTutorialsGrid(tutorials) {
+      const grid = document.getElementById('tutorialsGrid');
+
+      if (tutorials.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-tutorials">
+            <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <h3>אין סרטונים עדיין</h3>
+            <p>לחץ על "הוסף סרטון" כדי ליצור את סרטון ההדרכה הראשון בפרויקט זה</p>
+            <button class="add-tutorial-btn" onclick="showAddTutorialModal()">
+              <svg viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+              הוסף סרטון
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = tutorials.map(tutorial => `
+        <div class="tutorial-card ${tutorial.status === 'recording' ? 'recording' : ''}" onclick="openTutorial('${tutorial.id}')">
+          <div class="tutorial-thumbnail">
+            ${tutorial.thumbnail ?
+              `<img src="/data/projects/${currentProject.id}/screenshots/${tutorial.thumbnail}" alt="">` :
+              `<div class="tutorial-thumbnail-placeholder">
+                <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </div>`
+            }
+            <span class="tutorial-status ${tutorial.status}">${getStatusText(tutorial.status)}</span>
+            ${tutorial.duration > 0 ? `<span class="tutorial-duration">${formatDuration(tutorial.duration)}</span>` : ''}
+          </div>
+          <div class="tutorial-content">
+            <h3 class="tutorial-title">${tutorial.title}</h3>
+            <p class="tutorial-description">${tutorial.prompt || tutorial.description || ''}</p>
+            <div class="tutorial-meta">
+              <span class="tutorial-meta-item">
+                <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                ${tutorial.steps?.length || 0} שלבים
+              </span>
+              <span class="tutorial-meta-item">
+                <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                ${formatDate(tutorial.createdAt)}
+              </span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getStatusText(status) {
+      const statusMap = {
+        'draft': 'טיוטה',
+        'recording': 'מקליט...',
+        'processing': 'מעבד...',
+        'ready': 'מוכן',
+        'error': 'שגיאה'
+      };
+      return statusMap[status] || status;
+    }
+
+    function formatDuration(ms) {
+      const seconds = Math.floor(ms / 1000);
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Open tutorial editor
+    async function openTutorial(tutorialId) {
+      if (!currentProject) return;
+
+      const tutorial = currentProject.tutorials?.find(t => t.id === tutorialId);
+      if (!tutorial || tutorial.status !== 'ready') {
+        showToast('warning', 'הסרטון לא זמין לעריכה', 'הסרטון עדיין בתהליך יצירה או שיש שגיאה');
+        return;
+      }
+
+      currentTutorial = tutorial;
+      loadEditorWithTutorial(tutorial);
+      showView('editor');
+    }
+
+    // Load editor with tutorial data
+    function loadEditorWithTutorial(tutorial) {
+      const steps = (tutorial.steps || []).map((step, index) => ({
+        id: step.id,
+        order: step.order || index,
+        action: step.elementInfo?.action || 'click',
+        field: step.translations?.he?.fieldName || step.elementInfo?.fieldName || `שלב ${index + 1}`,
+        desc: step.translations?.he?.actionDescription || '',
+        screenshotUrl: step.screenshotFile ? `/data/projects/${currentProject.id}/screenshots/${step.screenshotFile}` : null,
+      }));
+
+      const stepsList = document.getElementById('stepsList');
+      const timelineSteps = document.getElementById('timelineSteps');
+
+      stepsList.innerHTML = '';
+      timelineSteps.innerHTML = '';
+
+      steps.forEach((step, index) => {
+        // Step card
+        const card = document.createElement('div');
+        card.className = 'step-card' + (index === 0 ? ' active' : '');
+        card.innerHTML = `
+          <div class="step-header">
+            <div class="step-number">${index + 1}</div>
+            <div class="step-action"><span>${step.action}</span></div>
+          </div>
+          <div class="step-field-name">${step.field}</div>
+          <div class="step-description">${step.desc}</div>
+          ${step.screenshotUrl ? `<div class="step-thumbnail"><img src="${step.screenshotUrl}" alt=""></div>` : '<div class="step-thumbnail"></div>'}
+        `;
+        card.onclick = () => selectStep(index);
+        stepsList.appendChild(card);
+
+        // Timeline step
+        const timelineStep = document.createElement('div');
+        timelineStep.className = 'timeline-step' + (index === 0 ? ' active' : '');
+        timelineStep.textContent = index + 1;
+        timelineStep.onclick = () => selectStep(index);
+        timelineSteps.appendChild(timelineStep);
+      });
+
+      // Update preview with first step screenshot
+      if (steps.length > 0 && steps[0].screenshotUrl) {
+        updatePreview(steps[0].screenshotUrl);
+      }
+
+      // Update editor header
+      document.querySelector('.editor-sidebar-title').textContent = tutorial.title;
+      document.querySelector('.editor-sidebar-subtitle').textContent = `${steps.length} שלבים`;
+    }
+
+    function updatePreview(screenshotUrl) {
+      const previewContent = document.querySelector('.preview-content');
+      if (screenshotUrl) {
+        previewContent.innerHTML = `<img src="${screenshotUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+      }
+    }
+
+    // Progress Modal
+    function showProgressModal() {
+      document.getElementById('progressModal').classList.add('active');
+      updateProgress(0, 'מפעיל דפדפן ופותח את האתר...');
+    }
+
+    function hideProgressModal() {
+      document.getElementById('progressModal').classList.remove('active');
+    }
+
+    function updateProgress(percent, message) {
+      document.getElementById('progressFill').style.width = percent + '%';
+      document.getElementById('progressPercent').textContent = percent + '%';
+      document.getElementById('progressMessage').textContent = message;
+    }
+
+    async function simulateRecording() {
+      const steps = [
+        { percent: 10, message: 'מפעיל דפדפן ופותח את האתר...' },
+        { percent: 25, message: 'מנתח את מבנה הדף...' },
+        { percent: 40, message: 'מזהה שדות ואלמנטים...' },
+        { percent: 55, message: 'מצלם פעולות ומסכים...' },
+        { percent: 70, message: 'יוצר מטא-דאטה ותרגומים...' },
+        { percent: 85, message: 'מרכיב את הסרטון...' },
+        { percent: 100, message: 'מסיים...' },
+      ];
+
+      for (const step of steps) {
+        await new Promise(r => setTimeout(r, 800));
+        updateProgress(step.percent, step.message);
+      }
+
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    // Toast Notifications
+    function showToast(type, title, message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+
+      const icons = {
+        success: '<path d="M5 13l4 4L19 7"/>',
+        error: '<path d="M6 18L18 6M6 6l12 12"/>',
+        warning: '<path d="M12 9v2m0 4h.01"/>'
+      };
+
+      toast.innerHTML = `
+        <div class="toast-icon">
+          <svg viewBox="0 0 24 24">${icons[type]}</svg>
+        </div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }
+
+    // Back to project view
+    function backToProject() {
+      if (currentProject) {
+        showView('project');
+      } else {
+        showView('home');
+      }
+    }
+
+    // Select step in editor
+    function selectStep(index) {
+      // Update step cards
+      document.querySelectorAll('.step-card').forEach((card, i) => {
+        card.classList.toggle('active', i === index);
+      });
+
+      // Update timeline steps
+      document.querySelectorAll('.timeline-step').forEach((step, i) => {
+        step.classList.toggle('active', i === index);
+      });
+
+      // Update preview if we have a tutorial loaded
+      if (currentTutorial) {
+        const step = currentTutorial.steps?.[index];
+        if (step?.screenshotFile) {
+          updatePreview(`/data/projects/${currentProject.id}/screenshots/${step.screenshotFile}`);
+        }
+      }
+    }
+
+    // Load projects list
+    async function loadProjectsList() {
+      try {
+        const response = await fetch('/api/projects');
+        const projectsData = await response.json();
+        projects = projectsData;
+
+        const projectList = document.getElementById('projectList');
+        projectList.innerHTML = '';
+
+        if (projects.length === 0) {
+          projectList.innerHTML = '<p style="color: var(--text-muted); font-size: 13px; padding: 8px 16px;">אין פרויקטים עדיין</p>';
+          return;
+        }
+
+        projects.forEach(project => {
+          const item = document.createElement('button');
+          item.className = 'project-item';
+          item.innerHTML = `
+            <div class="project-item-icon">
+              <svg viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            </div>
+            <div class="project-item-info">
+              <div class="project-item-name">${project.name}</div>
+              <div class="project-item-date">${formatDate(project.createdAt)} • ${project.tutorialCount || 0} סרטונים</div>
+            </div>
+          `;
+          item.onclick = async () => {
+            await openProject(project.id);
+          };
+          projectList.appendChild(item);
+        });
+      } catch (error) {
+        console.error('Error loading projects:', error);
+      }
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return 'עכשיו';
+      if (diffMins < 60) return `לפני ${diffMins} דקות`;
+      if (diffHours < 24) return `לפני ${diffHours} שעות`;
+      if (diffDays < 7) return `לפני ${diffDays} ימים`;
+
+      return date.toLocaleDateString('he-IL');
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      showView('home');
+      loadProjectsList();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScreenR Player</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .player-container {
+      max-width: 1280px;
+      width: 100%;
+    }
+
+    .player-header {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .player-header h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    /* Mode Selector */
+    .mode-selector {
+      display: flex;
+      gap: 8px;
+      background: #2d2d44;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .mode-btn {
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: #888;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mode-btn:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .mode-btn.active {
+      background: #4ecdc4;
+      color: #000;
+    }
+
+    .mode-btn .icon {
+      font-size: 16px;
+    }
+
+    /* Settings Bar */
+    .settings-bar {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #2d2d44;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .toggle-btn:hover {
+      background: #3d3d5c;
+    }
+
+    .toggle-btn.active {
+      background: #4ecdc4;
+      color: #000;
+    }
+
+    .toggle-btn .toggle-indicator {
+      width: 36px;
+      height: 20px;
+      background: #555;
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .toggle-btn.active .toggle-indicator {
+      background: #2d8a84;
+    }
+
+    .toggle-btn .toggle-indicator::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-btn.active .toggle-indicator::after {
+      transform: translateX(16px);
+    }
+
+    /* Language Selector */
+    .language-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .language-selector label {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .language-selector select {
+      padding: 8px 12px;
+      background: #2d2d44;
+      border: 1px solid #3d3d5c;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .language-selector select:hover {
+      border-color: #4ecdc4;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .video-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #main-video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Screenshot layer for interactive modes */
+    #screenshot-layer {
+      display: none;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      z-index: 5;
+    }
+
+    /* Interactive click layer */
+    #click-layer {
+      display: none;
+      z-index: 15;
+      cursor: crosshair;
+    }
+
+    /* Overlay Layer for tooltips and cursor */
+    .overlay-layer {
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Animated cursor */
+    .animated-cursor {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      pointer-events: none;
+      z-index: 20;
+      opacity: 0;
+      transition: left 0.3s ease-out, top 0.3s ease-out, opacity 0.2s ease;
+    }
+
+    .animated-cursor.active {
+      opacity: 1;
+    }
+
+    .animated-cursor svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
+    }
+
+    .animated-cursor.clicking {
+      animation: cursor-click 0.3s ease;
+    }
+
+    @keyframes cursor-click {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(0.85); }
+    }
+
+    /* Tooltip bubble */
+    .action-tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 15px;
+      max-width: 280px;
+      z-index: 15;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border: 1px solid #4ecdc4;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .action-tooltip.active {
+      opacity: 1;
+    }
+
+    .action-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 20px;
+      border: 8px solid transparent;
+      border-top-color: #4ecdc4;
+      border-bottom: none;
+    }
+
+    .action-tooltip.tooltip-right::after {
+      left: auto;
+      right: 20px;
+    }
+
+    .action-tooltip.tooltip-bottom {
+      /* Arrow on top */
+    }
+
+    .action-tooltip.tooltip-bottom::after {
+      bottom: auto;
+      top: -8px;
+      border-top: none;
+      border-bottom-color: #4ecdc4;
+    }
+
+    .action-tooltip .field-name {
+      font-weight: 600;
+      color: #4ecdc4;
+      margin-bottom: 4px;
+    }
+
+    .action-tooltip .action-text {
+      color: #ddd;
+    }
+
+    /* Click feedback */
+    .click-feedback {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      animation: click-ripple 0.6s ease-out forwards;
+    }
+
+    .click-feedback.correct {
+      background: rgba(78, 205, 196, 0.5);
+      border: 2px solid #4ecdc4;
+    }
+
+    .click-feedback.incorrect {
+      background: rgba(255, 107, 107, 0.5);
+      border: 2px solid #ff6b6b;
+    }
+
+    @keyframes click-ripple {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+    }
+
+    /* Instruction Panel */
+    .instruction-panel {
+      display: none;
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      padding: 16px 32px;
+      border-radius: 12px;
+      z-index: 25;
+      text-align: center;
+      max-width: 80%;
+      border: 1px solid #4ecdc4;
+    }
+
+    .instruction-panel.active {
+      display: block;
+    }
+
+    .instruction-panel .step-number {
+      font-size: 12px;
+      color: #4ecdc4;
+      margin-bottom: 4px;
+    }
+
+    .instruction-panel .instruction-text {
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .instruction-panel .hint {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #ffd93d;
+      font-style: italic;
+    }
+
+    /* Score Panel (Test Mode) */
+    .score-panel {
+      display: none;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 16px 24px;
+      border-radius: 12px;
+      z-index: 25;
+    }
+
+    .score-panel.active {
+      display: block;
+    }
+
+    .score-panel .score-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #4ecdc4;
+    }
+
+    .score-panel .score-label {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .score-panel .attempts-info {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    /* Subtitle Layer */
+    .subtitle-layer {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .subtitle {
+      display: none;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .subtitle.active {
+      display: block;
+    }
+
+    /* Question Layer */
+    .question-layer {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 30;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .question-layer.active {
+      display: flex;
+    }
+
+    .question-card {
+      background: #2d2d44;
+      padding: 40px;
+      border-radius: 16px;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    .question-card h3 {
+      font-size: 24px;
+      margin-bottom: 24px;
+    }
+
+    .question-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .question-option {
+      background: #3d3d5c;
+      border: 2px solid transparent;
+      padding: 16px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 16px;
+      color: #fff;
+    }
+
+    .question-option:hover {
+      background: #4d4d6c;
+      border-color: #6c6c8c;
+    }
+
+    .question-option.correct {
+      background: #2d5a3d;
+      border-color: #4ecdc4;
+    }
+
+    .question-option.incorrect {
+      background: #5a2d2d;
+      border-color: #ff6b6b;
+    }
+
+    .question-feedback {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .question-feedback.show {
+      display: block;
+    }
+
+    .question-feedback.correct {
+      background: #2d5a3d;
+    }
+
+    .question-feedback.incorrect {
+      background: #5a2d2d;
+    }
+
+    /* Completion Screen */
+    .completion-screen {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 35;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .completion-screen.active {
+      display: flex;
+    }
+
+    .completion-screen h2 {
+      font-size: 36px;
+      margin-bottom: 16px;
+      color: #4ecdc4;
+    }
+
+    .completion-screen .final-score {
+      font-size: 64px;
+      font-weight: 700;
+      margin: 20px 0;
+    }
+
+    .completion-screen .final-score.pass {
+      color: #4ecdc4;
+    }
+
+    .completion-screen .final-score.fail {
+      color: #ff6b6b;
+    }
+
+    .completion-screen .stats {
+      display: flex;
+      gap: 40px;
+      margin: 30px 0;
+    }
+
+    .completion-screen .stat {
+      text-align: center;
+    }
+
+    .completion-screen .stat-value {
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .completion-screen .stat-label {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .completion-screen .restart-btn {
+      margin-top: 30px;
+      padding: 16px 40px;
+      background: #4ecdc4;
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .completion-screen .restart-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 25;
+    }
+
+    .controls.hidden {
+      display: none;
+    }
+
+    .controls button {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .controls button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #4ecdc4;
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .time-display {
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Summary Panel */
+    .summary-panel {
+      margin-top: 20px;
+      background: #2d2d44;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .summary-panel h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .key-points {
+      list-style: none;
+    }
+
+    .key-points li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .key-points li:last-child {
+      border-bottom: none;
+    }
+
+    .key-points .bullet {
+      width: 8px;
+      height: 8px;
+      background: #4ecdc4;
+      border-radius: 50%;
+    }
+
+    /* Chapters */
+    .chapters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .chapter-btn {
+      background: #3d3d5c;
+      border: none;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .chapter-btn:hover {
+      background: #4d4d6c;
+    }
+  </style>
+</head>
+<body>
+  <div class="player-container">
+    <div class="player-header">
+      <h1 id="title">Loading...</h1>
+      <div class="mode-selector">
+        <button class="mode-btn active" data-mode="show-me">
+          <span class="icon">👁️</span> Show Me
+        </button>
+        <button class="mode-btn" data-mode="guide-me">
+          <span class="icon">👆</span> Guide Me
+        </button>
+        <button class="mode-btn" data-mode="test-me">
+          <span class="icon">📝</span> Test Me
+        </button>
+      </div>
+    </div>
+
+    <!-- Settings Bar -->
+    <div class="settings-bar">
+      <button class="toggle-btn active" id="tooltips-toggle">
+        <span>Tooltips</span>
+        <span class="toggle-indicator"></span>
+      </button>
+      <div class="language-selector">
+        <label for="language-select">Language:</label>
+        <select id="language-select">
+          <option value="he">עברית</option>
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="video-wrapper">
+      <!-- Video Layer (Show Me mode) -->
+      <video id="main-video" class="video-layer"></video>
+
+      <!-- Screenshot Layer (Guide Me / Test Me modes) -->
+      <div id="screenshot-layer" class="video-layer"></div>
+
+      <!-- Interactive Click Layer -->
+      <div id="click-layer" class="video-layer"></div>
+
+      <!-- Overlay Layer for tooltips and cursor -->
+      <div id="overlay-layer" class="video-layer overlay-layer">
+        <!-- Animated cursor -->
+        <div id="animated-cursor" class="animated-cursor">
+          <svg viewBox="0 0 24 24" fill="white" stroke="black" stroke-width="1">
+            <path d="M4 4 L4 20 L9 15 L13 22 L16 20 L12 13 L19 13 Z"/>
+          </svg>
+        </div>
+        <!-- Action tooltip -->
+        <div id="action-tooltip" class="action-tooltip">
+          <div class="field-name"></div>
+          <div class="action-text"></div>
+        </div>
+      </div>
+
+      <!-- Instruction Panel (Guide Me mode) -->
+      <div id="instruction-panel" class="instruction-panel">
+        <div class="step-number">Step <span id="step-current">1</span> of <span id="step-total">10</span></div>
+        <div class="instruction-text" id="instruction-text"></div>
+        <div class="hint" id="hint-text"></div>
+      </div>
+
+      <!-- Score Panel (Test Me mode) -->
+      <div id="score-panel" class="score-panel">
+        <div class="score-value" id="current-score">0</div>
+        <div class="score-label">Points</div>
+        <div class="attempts-info">Attempts: <span id="attempts-count">0</span></div>
+      </div>
+
+      <!-- Subtitle Layer -->
+      <div class="subtitle-layer">
+        <div id="subtitle" class="subtitle"></div>
+      </div>
+
+      <!-- Question Layer -->
+      <div id="question-layer" class="question-layer">
+        <div class="question-card">
+          <h3 id="question-text"></h3>
+          <div id="question-options" class="question-options"></div>
+          <div id="question-feedback" class="question-feedback"></div>
+          <button id="continue-btn" style="display:none; margin-top: 20px; padding: 12px 32px; background: #4ecdc4; border: none; border-radius: 8px; color: #000; font-weight: 600; cursor: pointer;">
+            Continue
+          </button>
+        </div>
+      </div>
+
+      <!-- Completion Screen -->
+      <div id="completion-screen" class="completion-screen">
+        <h2 id="completion-title">Tutorial Complete!</h2>
+        <div class="final-score pass" id="final-score">100%</div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-value" id="stat-correct">0</div>
+            <div class="stat-label">Correct</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="stat-attempts">0</div>
+            <div class="stat-label">Total Attempts</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="stat-time">0:00</div>
+            <div class="stat-label">Time</div>
+          </div>
+        </div>
+        <button class="restart-btn" id="restart-btn">Try Again</button>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls" id="controls">
+        <button id="play-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path id="play-icon" d="M8 5v14l11-7z"/>
+          </svg>
+        </button>
+        <div class="progress-bar" id="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <span class="time-display" id="time-display">0:00 / 0:00</span>
+        <button id="fullscreen-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Summary Panel -->
+    <div class="summary-panel" id="summary-panel" style="display: none;">
+      <h2>Key Points</h2>
+      <ul class="key-points" id="key-points"></ul>
+      <div class="chapters" id="chapters"></div>
+    </div>
+  </div>
+
+  <audio id="narration-audio"></audio>
+
+  <script>
+    // ScreenR Player with Learning Modes
+    class ScreenRPlayer {
+      constructor(projectData) {
+        this.project = projectData;
+        this.video = document.getElementById('main-video');
+        this.audio = document.getElementById('narration-audio');
+
+        // State
+        this.mode = 'show-me'; // 'show-me', 'guide-me', 'test-me'
+        this.isPlaying = false;
+        this.currentQuestionIndex = -1;
+        this.tooltipsEnabled = true;
+        this.currentLanguage = projectData.defaultLanguage || 'he';
+        this.highlightsData = [];
+
+        // Interactive mode state
+        this.session = {
+          currentStepIndex: 0,
+          score: 0,
+          maxScore: 0,
+          attempts: [],
+          completedSteps: [],
+          startTime: null,
+          wrongAttemptsOnCurrentStep: 0
+        };
+
+        this.init();
+      }
+
+      init() {
+        // Set title
+        document.getElementById('title').textContent = this.project.title;
+
+        // Load video
+        if (this.project.layers.video) {
+          this.video.src = this.project.layers.video.src;
+        }
+
+        // Load audio
+        if (this.project.layers.audio && this.project.layers.audio.src) {
+          this.audio.src = this.project.layers.audio.src;
+          this.audio.volume = this.project.layers.audio.volume || 1;
+        }
+
+        // Calculate max score
+        if (this.project.interactiveSteps) {
+          this.session.maxScore = this.project.interactiveSteps.reduce(
+            (sum, step) => sum + (step.scoring?.points || 10), 0
+          );
+        }
+
+        // Store highlights data (no visual highlights, just data for cursor/tooltip)
+        this.highlightsData = this.project.layers.highlights;
+
+        // Setup summary
+        this.setupSummary();
+
+        // Setup language selector
+        this.setupLanguageSelector();
+
+        // Bind events
+        this.bindEvents();
+
+        // Set initial mode
+        this.setMode('show-me');
+      }
+
+      // Show animated cursor at position
+      showCursor(x, y, isClicking = false) {
+        const cursor = document.getElementById('animated-cursor');
+        cursor.style.left = `${x}%`;
+        cursor.style.top = `${y}%`;
+        cursor.classList.add('active');
+
+        if (isClicking) {
+          cursor.classList.add('clicking');
+          setTimeout(() => cursor.classList.remove('clicking'), 300);
+        }
+      }
+
+      hideCursor() {
+        const cursor = document.getElementById('animated-cursor');
+        cursor.classList.remove('active');
+      }
+
+      // Show tooltip bubble near position
+      showActionTooltip(highlight) {
+        if (!this.tooltipsEnabled) return;
+
+        const tooltip = document.getElementById('action-tooltip');
+        const fieldNameEl = tooltip.querySelector('.field-name');
+        const actionTextEl = tooltip.querySelector('.action-text');
+
+        // Get text for current language
+        let fieldName = '';
+        let actionText = '';
+
+        if (highlight.translations && highlight.translations[this.currentLanguage]) {
+          const trans = highlight.translations[this.currentLanguage];
+          fieldName = highlight.elementInfo?.fieldName || trans.fieldName;
+          actionText = trans.actionDescription;
+        } else if (highlight.elementInfo) {
+          fieldName = highlight.elementInfo.fieldName;
+          actionText = `${highlight.elementInfo.action}: ${fieldName}`;
+        } else if (highlight.label) {
+          fieldName = highlight.label;
+          actionText = fieldName;
+        }
+
+        fieldNameEl.textContent = fieldName;
+        actionTextEl.textContent = actionText;
+
+        // Position tooltip above the cursor position
+        let tooltipX = highlight.x;
+        let tooltipY = highlight.y - 12; // Above the cursor
+
+        // Adjust if too close to top
+        if (tooltipY < 15) {
+          tooltipY = highlight.y + 8;
+          tooltip.classList.add('tooltip-bottom');
+        } else {
+          tooltip.classList.remove('tooltip-bottom');
+        }
+
+        // Adjust if too close to right edge
+        if (tooltipX > 70) {
+          tooltip.classList.add('tooltip-right');
+        } else {
+          tooltip.classList.remove('tooltip-right');
+        }
+
+        tooltip.style.left = `${tooltipX}%`;
+        tooltip.style.top = `${tooltipY}%`;
+        tooltip.classList.add('active');
+      }
+
+      hideActionTooltip() {
+        const tooltip = document.getElementById('action-tooltip');
+        tooltip.classList.remove('active');
+      }
+
+      setupLanguageSelector() {
+        const select = document.getElementById('language-select');
+
+        // Set available languages
+        if (this.project.availableLanguages && this.project.availableLanguages.length > 0) {
+          select.innerHTML = '';
+          const languageNames = {
+            'he': 'עברית',
+            'en': 'English',
+            'ar': 'العربية',
+            'ru': 'Русский',
+            'fr': 'Français',
+            'es': 'Español'
+          };
+          this.project.availableLanguages.forEach(lang => {
+            const option = document.createElement('option');
+            option.value = lang;
+            option.textContent = languageNames[lang] || lang;
+            select.appendChild(option);
+          });
+        }
+
+        // Set default language
+        select.value = this.currentLanguage;
+      }
+
+      setupSummary() {
+        if (!this.project.layers.summary) return;
+
+        const panel = document.getElementById('summary-panel');
+        panel.style.display = 'block';
+
+        const keyPoints = document.getElementById('key-points');
+        keyPoints.innerHTML = '';
+        this.project.layers.summary.keyPoints.forEach(point => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span class="bullet"></span>${point}`;
+          keyPoints.appendChild(li);
+        });
+
+        const chapters = document.getElementById('chapters');
+        chapters.innerHTML = '';
+        this.project.layers.summary.chapters.forEach(chapter => {
+          const btn = document.createElement('button');
+          btn.className = 'chapter-btn';
+          btn.textContent = chapter.title;
+          btn.onclick = () => this.seekTo(chapter.startTime);
+          chapters.appendChild(btn);
+        });
+      }
+
+      bindEvents() {
+        // Mode selector
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+          btn.onclick = () => this.setMode(btn.dataset.mode);
+        });
+
+        // Play/Pause
+        document.getElementById('play-btn').onclick = () => this.togglePlay();
+        this.video.onclick = () => {
+          if (this.mode === 'show-me') this.togglePlay();
+        };
+
+        // Progress bar
+        document.getElementById('progress-bar').onclick = (e) => {
+          if (this.mode !== 'show-me') return;
+          const rect = e.target.getBoundingClientRect();
+          const percent = (e.clientX - rect.left) / rect.width;
+          this.seekTo(percent * this.video.duration * 1000);
+        };
+
+        // Time update
+        this.video.ontimeupdate = () => this.onTimeUpdate();
+
+        // Fullscreen
+        document.getElementById('fullscreen-btn').onclick = () => this.toggleFullscreen();
+
+        // Continue button for questions
+        document.getElementById('continue-btn').onclick = () => this.continueAfterQuestion();
+
+        // Restart button
+        document.getElementById('restart-btn').onclick = () => this.restart();
+
+        // Click layer for interactive modes
+        document.getElementById('click-layer').onclick = (e) => this.handleInteractiveClick(e);
+
+        // Tooltips toggle
+        document.getElementById('tooltips-toggle').onclick = () => this.toggleTooltips();
+
+        // Language selector
+        document.getElementById('language-select').onchange = (e) => this.setLanguage(e.target.value);
+      }
+
+      toggleTooltips() {
+        this.tooltipsEnabled = !this.tooltipsEnabled;
+        const btn = document.getElementById('tooltips-toggle');
+
+        btn.classList.toggle('active', this.tooltipsEnabled);
+
+        // Hide tooltip if disabled
+        if (!this.tooltipsEnabled) {
+          this.hideActionTooltip();
+        }
+      }
+
+      setLanguage(lang) {
+        this.currentLanguage = lang;
+
+        // Update document direction for RTL languages
+        document.documentElement.dir = (lang === 'he' || lang === 'ar') ? 'rtl' : 'ltr';
+      }
+
+      setMode(mode) {
+        this.mode = mode;
+
+        // Update button states
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+
+        // Reset state
+        this.pause();
+        this.resetSession();
+
+        // Configure UI based on mode
+        const video = document.getElementById('main-video');
+        const screenshot = document.getElementById('screenshot-layer');
+        const clickLayer = document.getElementById('click-layer');
+        const controls = document.getElementById('controls');
+        const instructionPanel = document.getElementById('instruction-panel');
+        const scorePanel = document.getElementById('score-panel');
+        const subtitleLayer = document.querySelector('.subtitle-layer');
+
+        switch (mode) {
+          case 'show-me':
+            video.style.display = 'block';
+            screenshot.style.display = 'none';
+            clickLayer.style.display = 'none';
+            controls.classList.remove('hidden');
+            instructionPanel.classList.remove('active');
+            scorePanel.classList.remove('active');
+            subtitleLayer.style.display = 'block';
+            break;
+
+          case 'guide-me':
+            video.style.display = 'none';
+            screenshot.style.display = 'block';
+            clickLayer.style.display = 'block';
+            controls.classList.add('hidden');
+            instructionPanel.classList.add('active');
+            scorePanel.classList.remove('active');
+            subtitleLayer.style.display = 'none';
+            this.startInteractiveMode();
+            break;
+
+          case 'test-me':
+            video.style.display = 'none';
+            screenshot.style.display = 'block';
+            clickLayer.style.display = 'block';
+            controls.classList.add('hidden');
+            instructionPanel.classList.remove('active');
+            scorePanel.classList.add('active');
+            subtitleLayer.style.display = 'none';
+            this.startInteractiveMode();
+            break;
+        }
+      }
+
+      resetSession() {
+        this.session = {
+          currentStepIndex: 0,
+          score: 0,
+          maxScore: this.session.maxScore,
+          attempts: [],
+          completedSteps: [],
+          startTime: null,
+          wrongAttemptsOnCurrentStep: 0
+        };
+        document.getElementById('completion-screen').classList.remove('active');
+        document.getElementById('current-score').textContent = '0';
+        document.getElementById('attempts-count').textContent = '0';
+      }
+
+      startInteractiveMode() {
+        // Generate interactive steps from highlights if not defined
+        if (!this.project.interactiveSteps || this.project.interactiveSteps.length === 0) {
+          this.generateInteractiveStepsFromHighlights();
+        }
+
+        if (!this.project.interactiveSteps || this.project.interactiveSteps.length === 0) {
+          console.warn('No interactive steps defined');
+          return;
+        }
+
+        this.session.startTime = Date.now();
+        this.showCurrentStep();
+      }
+
+      generateInteractiveStepsFromHighlights() {
+        // Create interactive steps from highlights that have screenshots
+        const highlights = this.project.layers.highlights.filter(h => h.screenshotFile);
+
+        this.project.interactiveSteps = highlights.map((h, index) => {
+          // Get translated instruction
+          let instruction = '';
+          if (h.translations && h.translations[this.currentLanguage]) {
+            instruction = h.translations[this.currentLanguage].actionDescription;
+          } else if (h.elementInfo) {
+            instruction = `${h.elementInfo.action}: ${h.elementInfo.fieldName}`;
+          } else {
+            instruction = h.label || `Step ${index + 1}`;
+          }
+
+          return {
+            id: `step-${index}`,
+            order: index,
+            instruction: instruction,
+            screenshotUrl: `screenshots/${h.screenshotFile}`,
+            target: {
+              x: h.x - (h.width || 5) / 2,
+              y: h.y - (h.height || 3) / 2,
+              width: h.width || 10,
+              height: h.height || 6,
+              highlightType: 'pulse',
+              tolerance: 8
+            },
+            scoring: {
+              points: 10,
+              penaltyPerWrongClick: 2
+            }
+          };
+        });
+
+        // Update max score
+        this.session.maxScore = this.project.interactiveSteps.length * 10;
+      }
+
+      showCurrentStep() {
+        const step = this.project.interactiveSteps[this.session.currentStepIndex];
+        if (!step) {
+          this.completeInteractiveMode();
+          return;
+        }
+
+        // Update step counter
+        document.getElementById('step-current').textContent = this.session.currentStepIndex + 1;
+        document.getElementById('step-total').textContent = this.project.interactiveSteps.length;
+
+        // Show instruction (guide-me) or hide (test-me)
+        if (this.mode === 'guide-me') {
+          document.getElementById('instruction-text').textContent = step.instruction;
+          document.getElementById('hint-text').textContent = '';
+          document.getElementById('instruction-panel').classList.add('active');
+
+          // Show highlight for target
+          this.showInteractiveHighlight(step.target);
+        } else {
+          // Test mode - no instruction shown initially
+          document.getElementById('instruction-panel').classList.remove('active');
+          this.clearInteractiveHighlights();
+        }
+
+        // Load screenshot for this step (in real implementation)
+        // For now, we'll use a placeholder
+        this.loadStepScreenshot(step);
+      }
+
+      loadStepScreenshot(step) {
+        const screenshot = document.getElementById('screenshot-layer');
+
+        // Clear any previous content
+        screenshot.innerHTML = '';
+        screenshot.style.background = '#000';
+
+        // If we have step screenshots, load them
+        if (step.screenshotUrl) {
+          screenshot.style.backgroundImage = `url(${step.screenshotUrl})`;
+          screenshot.style.backgroundSize = 'contain';
+          screenshot.style.backgroundRepeat = 'no-repeat';
+          screenshot.style.backgroundPosition = 'center';
+        } else {
+          // Fallback: show instruction as placeholder
+          screenshot.style.background = '#2d2d44';
+          screenshot.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;font-size:24px;padding:20px;text-align:center;">
+            שלב ${this.session.currentStepIndex + 1}: ${step.instruction}
+          </div>`;
+        }
+      }
+
+      showInteractiveHighlight(target) {
+        const layer = document.getElementById('overlay-layer');
+
+        // Clear previous highlights
+        this.clearInteractiveHighlights();
+
+        // Create highlight element for target area
+        const el = document.createElement('div');
+        el.id = 'interactive-highlight';
+        el.style.cssText = `
+          position: absolute;
+          left: ${target.x}%;
+          top: ${target.y}%;
+          width: ${target.width}%;
+          height: ${target.height}%;
+          border: 3px solid #4ecdc4;
+          border-radius: 8px;
+          background: rgba(78, 205, 196, 0.15);
+          pointer-events: none;
+          animation: guide-pulse 1.5s ease-in-out infinite;
+        `;
+        layer.appendChild(el);
+
+        // Add pulse animation if not exists
+        if (!document.getElementById('guide-pulse-style')) {
+          const style = document.createElement('style');
+          style.id = 'guide-pulse-style';
+          style.textContent = `
+            @keyframes guide-pulse {
+              0%, 100% { transform: scale(1); opacity: 1; }
+              50% { transform: scale(1.05); opacity: 0.7; }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+      }
+
+      clearInteractiveHighlights() {
+        const existing = document.getElementById('interactive-highlight');
+        if (existing) existing.remove();
+      }
+
+      handleInteractiveClick(e) {
+        const step = this.project.interactiveSteps[this.session.currentStepIndex];
+        if (!step) return;
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickX = ((e.clientX - rect.left) / rect.width) * 100;
+        const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+
+        const target = step.target;
+        const tolerance = target.tolerance || 5;
+
+        // Check if click is within target area
+        const isCorrect =
+          clickX >= target.x - tolerance &&
+          clickX <= target.x + target.width + tolerance &&
+          clickY >= target.y - tolerance &&
+          clickY <= target.y + target.height + tolerance;
+
+        // Record attempt
+        this.session.attempts.push({
+          stepId: step.id,
+          timestamp: Date.now(),
+          clickX,
+          clickY,
+          isCorrect,
+          attemptNumber: this.session.wrongAttemptsOnCurrentStep + 1
+        });
+
+        // Show click feedback
+        this.showClickFeedback(e.clientX - rect.left, e.clientY - rect.top, isCorrect);
+
+        if (isCorrect) {
+          this.handleCorrectClick(step);
+        } else {
+          this.handleIncorrectClick(step);
+        }
+
+        // Update UI
+        document.getElementById('attempts-count').textContent = this.session.attempts.length;
+      }
+
+      showClickFeedback(x, y, isCorrect) {
+        const layer = document.getElementById('click-layer');
+        const feedback = document.createElement('div');
+        feedback.className = `click-feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+        feedback.style.left = `${x}px`;
+        feedback.style.top = `${y}px`;
+        layer.appendChild(feedback);
+
+        setTimeout(() => feedback.remove(), 600);
+      }
+
+      handleCorrectClick(step) {
+        // Award points
+        const points = step.scoring?.points || 10;
+        const penalty = step.scoring?.penaltyPerWrongClick || 2;
+        const earnedPoints = Math.max(0, points - (this.session.wrongAttemptsOnCurrentStep * penalty));
+
+        this.session.score += earnedPoints;
+        this.session.completedSteps.push(step.id);
+        this.session.wrongAttemptsOnCurrentStep = 0;
+
+        document.getElementById('current-score').textContent = this.session.score;
+
+        // Show feedback if defined
+        if (step.onCorrect?.feedback) {
+          // Could show a toast notification here
+          console.log(step.onCorrect.feedback);
+        }
+
+        // Move to next step
+        setTimeout(() => {
+          this.session.currentStepIndex++;
+          this.showCurrentStep();
+        }, 500);
+      }
+
+      handleIncorrectClick(step) {
+        this.session.wrongAttemptsOnCurrentStep++;
+
+        if (step.onIncorrect?.feedback) {
+          console.log(step.onIncorrect.feedback);
+        }
+
+        // In guide-me mode, show hint after wrong attempts
+        if (this.mode === 'guide-me') {
+          if (step.hint && this.session.wrongAttemptsOnCurrentStep >= 2) {
+            document.getElementById('hint-text').textContent = `Hint: ${step.hint}`;
+          }
+
+          // After max attempts, highlight the correct area more prominently
+          const maxAttempts = step.onIncorrect?.maxAttempts || 3;
+          if (this.session.wrongAttemptsOnCurrentStep >= maxAttempts) {
+            this.showInteractiveHighlight({
+              ...step.target,
+              highlightType: 'glow',
+              highlightColor: '#ffd93d'
+            });
+          }
+        }
+
+        // In test-me mode, optionally show hint after several wrong attempts
+        if (this.mode === 'test-me' && step.hint && this.session.wrongAttemptsOnCurrentStep >= 3) {
+          document.getElementById('instruction-panel').classList.add('active');
+          document.getElementById('instruction-text').textContent = `Hint: ${step.hint}`;
+        }
+      }
+
+      completeInteractiveMode() {
+        const elapsed = Date.now() - this.session.startTime;
+        const percentage = Math.round((this.session.score / this.session.maxScore) * 100);
+        const correctSteps = this.session.completedSteps.length;
+        const totalAttempts = this.session.attempts.length;
+
+        // Update completion screen
+        document.getElementById('completion-title').textContent =
+          this.mode === 'test-me' ? 'Assessment Complete!' : 'Great Job!';
+
+        const finalScore = document.getElementById('final-score');
+        finalScore.textContent = `${percentage}%`;
+        finalScore.className = `final-score ${percentage >= 70 ? 'pass' : 'fail'}`;
+
+        document.getElementById('stat-correct').textContent = correctSteps;
+        document.getElementById('stat-attempts').textContent = totalAttempts;
+        document.getElementById('stat-time').textContent = this.formatTime(elapsed);
+
+        document.getElementById('completion-screen').classList.add('active');
+      }
+
+      restart() {
+        this.resetSession();
+        if (this.mode === 'show-me') {
+          this.video.currentTime = 0;
+        } else {
+          this.startInteractiveMode();
+        }
+      }
+
+      togglePlay() {
+        if (this.isPlaying) {
+          this.pause();
+        } else {
+          this.play();
+        }
+      }
+
+      play() {
+        this.video.play();
+        if (this.audio.src) this.audio.play();
+        this.isPlaying = true;
+        document.getElementById('play-icon').setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+      }
+
+      pause() {
+        this.video.pause();
+        if (this.audio.src) this.audio.pause();
+        this.isPlaying = false;
+        document.getElementById('play-icon').setAttribute('d', 'M8 5v14l11-7z');
+      }
+
+      seekTo(timeMs) {
+        const timeSec = timeMs / 1000;
+        this.video.currentTime = timeSec;
+        if (this.audio.src) this.audio.currentTime = timeSec;
+      }
+
+      onTimeUpdate() {
+        if (this.mode !== 'show-me') return;
+
+        const currentMs = this.video.currentTime * 1000;
+        const durationMs = this.video.duration * 1000;
+
+        // Update progress bar
+        const percent = (currentMs / durationMs) * 100;
+        document.getElementById('progress-fill').style.width = `${percent}%`;
+
+        // Update time display
+        document.getElementById('time-display').textContent =
+          `${this.formatTime(currentMs)} / ${this.formatTime(durationMs)}`;
+
+        // Update subtitles
+        this.updateSubtitles(currentMs);
+
+        // Update highlights
+        this.updateHighlights(currentMs);
+
+        // Check for questions
+        this.checkQuestions(currentMs);
+      }
+
+      updateSubtitles(currentMs) {
+        const subtitle = this.project.layers.subtitles.find(
+          s => currentMs >= s.start && currentMs <= s.end
+        );
+
+        const el = document.getElementById('subtitle');
+        if (subtitle) {
+          el.textContent = subtitle.text;
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      }
+
+      updateHighlights(currentMs) {
+        // Find active highlight based on current time
+        const activeHighlight = this.highlightsData.find(
+          h => currentMs >= h.start && currentMs <= h.end
+        );
+
+        if (activeHighlight) {
+          // Show cursor at highlight position
+          const isClickAction = activeHighlight.elementInfo?.action === 'click' ||
+                               activeHighlight.elementInfo?.action === 'hover';
+          this.showCursor(activeHighlight.x, activeHighlight.y, isClickAction);
+
+          // Show tooltip
+          this.showActionTooltip(activeHighlight);
+        } else {
+          // Hide cursor and tooltip when no active highlight
+          this.hideCursor();
+          this.hideActionTooltip();
+        }
+      }
+
+      checkQuestions(currentMs) {
+        const questionIndex = this.project.layers.questions.findIndex(
+          q => currentMs >= q.at && currentMs <= q.at + 500 && q.pauseVideo
+        );
+
+        if (questionIndex !== -1 && questionIndex !== this.currentQuestionIndex) {
+          this.showQuestion(questionIndex);
+        }
+      }
+
+      showQuestion(index) {
+        this.currentQuestionIndex = index;
+        const question = this.project.layers.questions[index];
+
+        this.pause();
+
+        document.getElementById('question-text').textContent = question.question;
+
+        const optionsEl = document.getElementById('question-options');
+        optionsEl.innerHTML = '';
+
+        question.options.forEach((opt, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'question-option';
+          btn.textContent = opt.text;
+          btn.onclick = () => this.answerQuestion(index, i);
+          optionsEl.appendChild(btn);
+        });
+
+        document.getElementById('question-feedback').className = 'question-feedback';
+        document.getElementById('continue-btn').style.display = 'none';
+        document.getElementById('question-layer').classList.add('active');
+      }
+
+      answerQuestion(questionIndex, answerIndex) {
+        const question = this.project.layers.questions[questionIndex];
+        const isCorrect = answerIndex === question.correctAnswer;
+
+        const options = document.querySelectorAll('.question-option');
+        options.forEach((opt, i) => {
+          opt.disabled = true;
+          if (i === question.correctAnswer) {
+            opt.classList.add('correct');
+          } else if (i === answerIndex && !isCorrect) {
+            opt.classList.add('incorrect');
+          }
+        });
+
+        const feedback = document.getElementById('question-feedback');
+        feedback.textContent = isCorrect ? question.feedback?.correct : question.feedback?.incorrect;
+        feedback.className = `question-feedback show ${isCorrect ? 'correct' : 'incorrect'}`;
+
+        document.getElementById('continue-btn').style.display = 'inline-block';
+      }
+
+      continueAfterQuestion() {
+        document.getElementById('question-layer').classList.remove('active');
+        this.play();
+      }
+
+      toggleFullscreen() {
+        const container = document.querySelector('.video-wrapper');
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          container.requestFullscreen();
+        }
+      }
+
+      formatTime(ms) {
+        if (isNaN(ms)) return '0:00';
+        const totalSeconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      }
+    }
+
+    // Load project and initialize player
+    async function loadProject() {
+      try {
+        const response = await fetch('./project.json');
+        const project = await response.json();
+
+        // Add default interactive steps if not present
+        if (!project.interactiveSteps) {
+          project.interactiveSteps = [];
+        }
+
+        window.player = new ScreenRPlayer(project);
+      } catch (error) {
+        console.error('Failed to load project:', error);
+        document.getElementById('title').textContent = 'Error loading project';
+      }
+    }
+
+    loadProject();
+  </script>
+</body>
+</html>

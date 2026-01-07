@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScreenR - Interactive Tutorial Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #4ecdc4;
+      --primary-dark: #3db9b1;
+      --secondary: #2d2d44;
+      --bg: #1a1a2e;
+      --bg-light: #252540;
+      --text: #ffffff;
+      --text-muted: #888;
+      --danger: #ff6b6b;
+      --success: #4ecdc4;
+      --warning: #ffd93d;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Layout */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: var(--secondary);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav {
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-bottom: 4px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: #000;
+    }
+
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      padding: 20px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .content {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--bg-light);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--secondary);
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    /* Grid */
+    .grid {
+      display: grid;
+      gap: 24px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+    /* Tutorial Cards */
+    .tutorial-card {
+      background: var(--secondary);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .tutorial-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .tutorial-thumbnail {
+      height: 160px;
+      background: var(--bg-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 48px;
+    }
+
+    .tutorial-info {
+      padding: 16px;
+    }
+
+    .tutorial-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .tutorial-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-draft { background: rgba(255,217,61,0.2); color: var(--warning); }
+    .status-published { background: rgba(78,205,196,0.2); color: var(--success); }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--secondary);
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Tables */
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th,
+    .table td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .table th {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      background: var(--bg-light);
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--secondary);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 24px;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-footer {
+      padding: 24px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .tab.active {
+      color: var(--primary);
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary);
+    }
+
+    /* User menu */
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--bg-light);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #000;
+    }
+
+    /* Charts placeholder */
+    .chart-placeholder {
+      height: 200px;
+      background: var(--bg-light);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    /* Toast notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1001;
+    }
+
+    .toast {
+      background: var(--secondary);
+      padding: 16px 24px;
+      border-radius: 8px;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error { border-left: 4px solid var(--danger); }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .grid-4 { grid-template-columns: repeat(3, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Login page */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+    }
+
+    .login-box {
+      background: var(--secondary);
+      padding: 48px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-logo {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 32px;
+    }
+
+    /* Hide sections initially */
+    .page { display: none; }
+    .page.active { display: block; }
+  </style>
+</head>
+<body>
+  <!-- App will be mounted here -->
+  <div id="app"></div>
+
+  <script>
+    // ScreenR Web Application
+    const API_URL = 'http://localhost:3001/api';
+    let currentUser = null;
+    let currentPage = 'dashboard';
+    let tutorials = [];
+    let selectedTutorial = null;
+
+    // Initialize app
+    function init() {
+      const token = localStorage.getItem('token');
+      if (token) {
+        fetchCurrentUser(token).then(() => {
+          renderApp();
+          loadDashboard();
+        }).catch(() => {
+          renderLogin();
+        });
+      } else {
+        renderLogin();
+      }
+    }
+
+    // API calls
+    async function api(endpoint, options = {}) {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+          ...options.headers,
+        },
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'API Error');
+      }
+      return response.json();
+    }
+
+    async function fetchCurrentUser(token) {
+      currentUser = await api('/auth/me');
+    }
+
+    // Auth
+    async function login(email, password) {
+      const data = await api('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+      localStorage.setItem('token', data.token);
+      currentUser = data.user;
+      renderApp();
+      loadDashboard();
+      showToast('Welcome back!', 'success');
+    }
+
+    async function register(email, password, name) {
+      const data = await api('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ email, password, name }),
+      });
+      localStorage.setItem('token', data.token);
+      currentUser = data.user;
+      renderApp();
+      loadDashboard();
+      showToast('Account created!', 'success');
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      currentUser = null;
+      renderLogin();
+    }
+
+    // Render functions
+    function renderLogin() {
+      document.getElementById('app').innerHTML = `
+        <div class="login-container">
+          <div class="login-box">
+            <div class="login-logo">ScreenR</div>
+            <form id="loginForm">
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="loginEmail" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="loginPassword" required>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width:100%">Sign In</button>
+            </form>
+            <p style="text-align:center;margin-top:20px;color:var(--text-muted)">
+              Default: admin@screenr.local / admin123
+            </p>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          await login(
+            document.getElementById('loginEmail').value,
+            document.getElementById('loginPassword').value
+          );
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    function renderApp() {
+      document.getElementById('app').innerHTML = `
+        <div class="app">
+          <aside class="sidebar">
+            <div class="logo">ScreenR</div>
+            <nav class="nav">
+              <a class="nav-item ${currentPage === 'dashboard' ? 'active' : ''}" onclick="navigateTo('dashboard')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                Dashboard
+              </a>
+              <a class="nav-item ${currentPage === 'tutorials' ? 'active' : ''}" onclick="navigateTo('tutorials')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>
+                Tutorials
+              </a>
+              <a class="nav-item ${currentPage === 'reports' ? 'active' : ''}" onclick="navigateTo('reports')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                Reports
+              </a>
+              <a class="nav-item ${currentPage === 'branding' ? 'active' : ''}" onclick="navigateTo('branding')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.47.64 1.06.64 1.67A2.5 2.5 0 0 1 12 22zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5a.54.54 0 0 0-.14-.35c-.41-.46-.63-1.05-.63-1.65a2.5 2.5 0 0 1 2.5-2.5H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7z"/><circle cx="6.5" cy="11.5" r="1.5"/><circle cx="9.5" cy="7.5" r="1.5"/><circle cx="14.5" cy="7.5" r="1.5"/><circle cx="17.5" cy="11.5" r="1.5"/></svg>
+                Branding
+              </a>
+              <a class="nav-item ${currentPage === 'users' ? 'active' : ''}" onclick="navigateTo('users')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                Users
+              </a>
+              <a class="nav-item ${currentPage === 'settings' ? 'active' : ''}" onclick="navigateTo('settings')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                Settings
+              </a>
+            </nav>
+            <div style="margin-top:auto;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1)">
+              <div class="user-menu" onclick="logout()">
+                <div class="user-avatar">${currentUser?.name?.charAt(0) || 'U'}</div>
+                <div>
+                  <div style="font-weight:500">${currentUser?.name || 'User'}</div>
+                  <div style="font-size:12px;color:var(--text-muted)">Sign out</div>
+                </div>
+              </div>
+            </div>
+          </aside>
+          <main class="main">
+            <div id="pageContent"></div>
+          </main>
+        </div>
+        <div class="toast-container" id="toastContainer"></div>
+        <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+          <div class="modal" id="modalContent" onclick="event.stopPropagation()"></div>
+        </div>
+      `;
+    }
+
+    function navigateTo(page) {
+      currentPage = page;
+      renderApp();
+
+      switch(page) {
+        case 'dashboard': loadDashboard(); break;
+        case 'tutorials': loadTutorials(); break;
+        case 'reports': loadReports(); break;
+        case 'branding': loadBranding(); break;
+        case 'users': loadUsers(); break;
+        case 'settings': loadSettings(); break;
+      }
+    }
+
+    // Dashboard
+    async function loadDashboard() {
+      document.getElementById('pageContent').innerHTML = `
+        <header class="header">
+          <h1>Dashboard</h1>
+          <div class="header-actions">
+            <button class="btn btn-primary" onclick="openCreateTutorial()">+ New Tutorial</button>
+          </div>
+        </header>
+        <div class="content">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="statTutorials">-</div>
+              <div class="stat-label">Total Tutorials</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statSessions">-</div>
+              <div class="stat-label">Learning Sessions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statUsers">-</div>
+              <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statCompletion">-</div>
+              <div class="stat-label">Avg. Completion</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Recent Tutorials</span>
+              <button class="btn btn-secondary" onclick="navigateTo('tutorials')">View All</button>
+            </div>
+            <div id="recentTutorials" class="grid grid-3"></div>
+          </div>
+        </div>
+      `;
+
+      // Load stats
+      try {
+        const [tutorialsData, overview] = await Promise.all([
+          api('/tutorials'),
+          api('/reports/overview').catch(() => ({ summary: {} }))
+        ]);
+
+        tutorials = tutorialsData;
+
+        document.getElementById('statTutorials').textContent = tutorials.length;
+        document.getElementById('statSessions').textContent = overview.summary?.totalSessions || 0;
+        document.getElementById('statUsers').textContent = overview.summary?.uniqueUsers || 0;
+        document.getElementById('statCompletion').textContent =
+          overview.summary?.completionRate ? `${overview.summary.completionRate}%` : '-';
+
+        renderTutorialCards('recentTutorials', tutorials.slice(0, 6));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Tutorials
+    async function loadTutorials() {
+      document.getElementById('pageContent').innerHTML = `
+        <header class="header">
+          <h1>Tutorials</h1>
+          <div class="header-actions">
+            <input type="search" class="form-input" placeholder="Search..." style="width:200px" id="tutorialSearch">
+            <button class="btn btn-primary" onclick="openCreateTutorial()">+ New Tutorial</button>
+          </div>
+        </header>
+        <div class="content">
+          <div class="tabs">
+            <button class="tab active" onclick="filterTutorials('all')">All</button>
+            <button class="tab" onclick="filterTutorials('published')">Published</button>
+            <button class="tab" onclick="filterTutorials('draft')">Drafts</button>
+          </div>
+          <div id="tutorialGrid" class="grid grid-3"></div>
+        </div>
+      `;
+
+      try {
+        tutorials = await api('/tutorials');
+        renderTutorialCards('tutorialGrid', tutorials);
+      } catch (err) {
+        console.error(err);
+      }
+
+      document.getElementById('tutorialSearch').addEventListener('input', (e) => {
+        const search = e.target.value.toLowerCase();
+        const filtered = tutorials.filter(t =>
+          t.title.toLowerCase().includes(search) ||
+          t.description?.toLowerCase().includes(search)
+        );
+        renderTutorialCards('tutorialGrid', filtered);
+      });
+    }
+
+    function renderTutorialCards(containerId, items) {
+      const container = document.getElementById(containerId);
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>
+            <h3>No tutorials yet</h3>
+            <p>Create your first tutorial to get started</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = items.map(t => `
+        <div class="tutorial-card" onclick="openTutorial('${t.id}')">
+          <div class="tutorial-thumbnail">${t.title.charAt(0)}</div>
+          <div class="tutorial-info">
+            <div class="tutorial-title">${t.title}</div>
+            <div class="tutorial-meta">
+              <span class="status-badge status-${t.status}">${t.status}</span>
+              <span>${formatDate(t.updated_at)}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterTutorials(status) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const filtered = status === 'all'
+        ? tutorials
+        : tutorials.filter(t => t.status === status);
+      renderTutorialCards('tutorialGrid', filtered);
+    }
+
+    // Reports
+    async function loadReports() {
+      document.getElementById('pageContent').innerHTML = `
+        <header class="header">
+          <h1>Reports & Analytics</h1>
+          <div class="header-actions">
+            <select class="form-input" style="width:200px" id="reportTutorial">
+              <option value="">All Tutorials</option>
+            </select>
+            <button class="btn btn-secondary">Export CSV</button>
+          </div>
+        </header>
+        <div class="content">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="rptSessions">-</div>
+              <div class="stat-label">Total Sessions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="rptCompletion">-</div>
+              <div class="stat-label">Completion Rate</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="rptScore">-</div>
+              <div class="stat-label">Average Score</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="rptTime">-</div>
+              <div class="stat-label">Avg. Time (sec)</div>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="card">
+              <div class="card-title">Sessions Over Time</div>
+              <div class="chart-placeholder" style="margin-top:20px">Chart would render here</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Score Distribution</div>
+              <div class="chart-placeholder" style="margin-top:20px">Chart would render here</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:24px">
+            <div class="card-title">Recent Sessions</div>
+            <table class="table" style="margin-top:20px">
+              <thead>
+                <tr>
+                  <th>Tutorial</th>
+                  <th>User</th>
+                  <th>Mode</th>
+                  <th>Score</th>
+                  <th>Time</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="sessionsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      try {
+        const [tutorialsData, overview] = await Promise.all([
+          api('/tutorials'),
+          api('/reports/overview')
+        ]);
+
+        // Populate tutorial dropdown
+        const select = document.getElementById('reportTutorial');
+        tutorialsData.forEach(t => {
+          select.innerHTML += `<option value="${t.id}">${t.title}</option>`;
+        });
+
+        // Update stats
+        document.getElementById('rptSessions').textContent = overview.summary?.totalSessions || 0;
+        document.getElementById('rptCompletion').textContent =
+          overview.summary?.completionRate ? `${overview.summary.completionRate}%` : '-';
+
+        // Render sessions table
+        const tbody = document.getElementById('sessionsTable');
+        if (overview.recentSessions?.length) {
+          tbody.innerHTML = overview.recentSessions.map(s => `
+            <tr>
+              <td>${s.tutorial_title || '-'}</td>
+              <td>${s.user_name || 'Anonymous'}</td>
+              <td>${s.mode}</td>
+              <td>${s.score !== null ? `${s.score}/${s.max_score}` : '-'}</td>
+              <td>${s.time_spent ? Math.round(s.time_spent/1000) + 's' : '-'}</td>
+              <td>${formatDate(s.started_at)}</td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No sessions yet</td></tr>';
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Branding
+    async function loadBranding() {
+      document.getElementById('pageContent').innerHTML = `
+        <header class="header">
+          <h1>Branding</h1>
+        </header>
+        <div class="content">
+          <div class="card" style="max-width:600px">
+            <form id="brandingForm">
+              <div class="form-group">
+                <label class="form-label">Organization Name</label>
+                <input type="text" class="form-input" id="brandName" value="ScreenR Demo">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Logo</label>
+                <input type="file" class="form-input" accept="image/*">
+              </div>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label class="form-label">Primary Color</label>
+                  <input type="color" class="form-input" id="brandPrimary" value="#4ecdc4" style="height:50px">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Secondary Color</label>
+                  <input type="color" class="form-input" id="brandSecondary" value="#2d2d44" style="height:50px">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Custom CSS</label>
+                <textarea class="form-input form-textarea" id="brandCss" placeholder="/* Add custom styles here */"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+          </div>
+        </div>
+      `;
+
+      try {
+        const branding = await api('/branding/org-001');
+        document.getElementById('brandName').value = branding.name || '';
+        document.getElementById('brandPrimary').value = branding.primaryColor || '#4ecdc4';
+        document.getElementById('brandSecondary').value = branding.secondaryColor || '#2d2d44';
+        document.getElementById('brandCss').value = branding.customCss || '';
+      } catch (err) {
+        console.error(err);
+      }
+
+      document.getElementById('brandingForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          await api('/branding/org-001', {
+            method: 'PUT',
+            body: JSON.stringify({
+              name: document.getElementById('brandName').value,
+              primaryColor: document.getElementById('brandPrimary').value,
+              secondaryColor: document.getElementById('brandSecondary').value,
+              customCss: document.getElementById('brandCss').value,
+            }),
+          });
+          showToast('Branding saved!', 'success');
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    // Users
+    async function loadUsers() {
+      document.getElementById('pageContent').innerHTML = `
+        <header class="header">
+          <h1>User Management</h1>
+          <div class="header-actions">
+            <button class="btn btn-primary" onclick="openCreateUser()">+ Add User</button>
+          </div>
+        </header>
+        <div class="content">
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTable"></tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      try {
+        const users = await api('/users');
+        const tbody = document.getElementById('usersTable');
+        tbody.innerHTML = users.map(u => `
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:12px">
+              <div class="user-avatar">${u.name.charAt(0)}</div>
+              ${u.name}
+            </div></td>
+            <td>${u.email}</td>
+            <td><span class="status-badge status-${u.role === 'admin' ? 'published' : 'draft'}">${u.role}</span></td>
+            <td>${formatDate(u.created_at)}</td>
+            <td>
+              <button class="btn btn-secondary" onclick="editUser('${u.id}')">Edit</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Settings
+    function loadSettings() {
+      document.getElementById('pageContent').innerHTML = `
+        <header class="header">
+          <h1>Settings</h1>
+        </header>
+        <div class="content">
+          <div class="tabs">
+            <button class="tab active">General</button>
+            <button class="tab">API Keys</button>
+            <button class="tab">Integrations</button>
+          </div>
+          <div class="card" style="max-width:600px">
+            <form>
+              <div class="form-group">
+                <label class="form-label">Default TTS Provider</label>
+                <select class="form-input">
+                  <option>OpenAI TTS</option>
+                  <option>ElevenLabs</option>
+                  <option>None (Mock)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">OpenAI API Key</label>
+                <input type="password" class="form-input" placeholder="sk-...">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ElevenLabs API Key</label>
+                <input type="password" class="form-input" placeholder="...">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Default SCORM Version</label>
+                <select class="form-input">
+                  <option>SCORM 2004</option>
+                  <option>SCORM 1.2</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Save Settings</button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    // Modals
+    function openCreateTutorial() {
+      document.getElementById('modalContent').innerHTML = `
+        <div class="modal-header">
+          <span class="modal-title">Create New Tutorial</span>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="createTutorialForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input type="text" class="form-input" id="newTitle" required placeholder="How to...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea class="form-input form-textarea" id="newDescription" placeholder="What will users learn?"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target URL</label>
+              <input type="url" class="form-input" id="newUrl" placeholder="https://...">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Tutorial</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modalOverlay').classList.add('active');
+
+      document.getElementById('createTutorialForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          const tutorial = await api('/tutorials', {
+            method: 'POST',
+            body: JSON.stringify({
+              title: document.getElementById('newTitle').value,
+              description: document.getElementById('newDescription').value,
+              targetUrl: document.getElementById('newUrl').value,
+            }),
+          });
+          closeModal();
+          showToast('Tutorial created!', 'success');
+          openTutorial(tutorial.id);
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    function openTutorial(id) {
+      // Navigate to tutorial editor
+      window.location.href = `/output/projects/demo-gmail-compose/index.html`;
+    }
+
+    function openCreateUser() {
+      document.getElementById('modalContent').innerHTML = `
+        <div class="modal-header">
+          <span class="modal-title">Add New User</span>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="createUserForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-input" id="newUserName" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" id="newUserEmail" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-input" id="newUserPassword" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Role</label>
+              <select class="form-input" id="newUserRole">
+                <option value="viewer">Viewer</option>
+                <option value="creator">Creator</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create User</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modalOverlay').classList.add('active');
+
+      document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          await api('/users', {
+            method: 'POST',
+            body: JSON.stringify({
+              name: document.getElementById('newUserName').value,
+              email: document.getElementById('newUserEmail').value,
+              password: document.getElementById('newUserPassword').value,
+              role: document.getElementById('newUserRole').value,
+            }),
+          });
+          closeModal();
+          showToast('User created!', 'success');
+          loadUsers();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    function closeModal(event) {
+      if (event && event.target !== event.currentTarget) return;
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    // Helpers
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString();
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Initialize
+    init();
+  </script>
+</body>
+</html>
