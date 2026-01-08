@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מדריך העלאת ScreenR לאינטרנט</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1419;
+      --bg-card: #1a2332;
+      --bg-elevated: #243447;
+      --accent: #00d4aa;
+      --accent-soft: rgba(0, 212, 170, 0.15);
+      --text: #e8eef5;
+      --text-dim: #8899a6;
+      --border: #2f3b4a;
+      --warning: #ffad1f;
+      --success: #17bf63;
+      --info: #1da1f2;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Rubik', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 60px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 60px;
+    }
+
+    .header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--accent), #00a8dd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      font-size: 20px;
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Progress Tracker */
+    .progress-tracker {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 40px 0;
+      flex-wrap: wrap;
+    }
+
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--bg-card);
+      border-radius: 30px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .progress-step .num {
+      width: 24px;
+      height: 24px;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 60px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .section-number {
+      width: 60px;
+      height: 60px;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .section-subtitle {
+      color: var(--text-dim);
+      font-size: 16px;
+      margin-top: 4px;
+    }
+
+    /* Card */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card h3 .icon {
+      font-size: 24px;
+    }
+
+    .card p {
+      color: var(--text-dim);
+      margin-bottom: 15px;
+    }
+
+    .card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .card li {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .card li:last-child {
+      border-bottom: none;
+    }
+
+    .card li::before {
+      content: "✓";
+      color: var(--accent);
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    /* Diagram */
+    .diagram {
+      background: var(--bg-elevated);
+      border-radius: 16px;
+      padding: 40px;
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .diagram-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: var(--accent);
+    }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .flow-item {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 30px;
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .flow-item.highlight {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-soft);
+    }
+
+    .flow-item .emoji {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .flow-item .label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .flow-arrow {
+      font-size: 24px;
+      color: var(--accent);
+    }
+
+    /* Architecture Diagram */
+    .architecture {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .arch-layer {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .arch-layer.full {
+      grid-column: 1 / -1;
+    }
+
+    .arch-layer h4 {
+      font-size: 14px;
+      color: var(--accent);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .arch-layer .content {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .arch-layer .desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-top: 8px;
+    }
+
+    /* Code Block */
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .code-block pre {
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 14px;
+      color: #e6edf3;
+      margin: 0;
+      white-space: pre-wrap;
+    }
+
+    .code-block .comment {
+      color: #8b949e;
+    }
+
+    .code-block .command {
+      color: #7ee787;
+    }
+
+    /* Alert Box */
+    .alert {
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .alert.info {
+      background: rgba(29, 161, 242, 0.1);
+      border: 1px solid rgba(29, 161, 242, 0.3);
+    }
+
+    .alert.warning {
+      background: rgba(255, 173, 31, 0.1);
+      border: 1px solid rgba(255, 173, 31, 0.3);
+    }
+
+    .alert.success {
+      background: rgba(23, 191, 99, 0.1);
+      border: 1px solid rgba(23, 191, 99, 0.3);
+    }
+
+    .alert .icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .alert .content h4 {
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .alert .content p {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin: 0;
+    }
+
+    /* Pricing Section */
+    .pricing-diagram {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .price-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .price-card.recommended {
+      border-color: var(--accent);
+      position: relative;
+    }
+
+    .price-card.recommended::before {
+      content: "מומלץ";
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: var(--bg);
+      padding: 4px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .price-card .name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .price-card .price {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .price-card .period {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .price-card .features {
+      margin-top: 20px;
+      text-align: right;
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    /* Steps List */
+    .steps-list {
+      counter-reset: step;
+    }
+
+    .step-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 15px;
+      position: relative;
+      padding-right: 80px;
+    }
+
+    .step-item::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      right: 25px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .step-item h4 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .step-item p {
+      color: var(--text-dim);
+      margin: 0;
+      font-size: 15px;
+    }
+
+    /* Checklist */
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .check-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .check-item .box {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* Table */
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 15px 20px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comparison-table th {
+      background: var(--bg-elevated);
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .comparison-table tr:hover {
+      background: var(--bg-card);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+
+    .footer h2 {
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+
+    .footer p {
+      color: var(--text-dim);
+      max-width: 500px;
+      margin: 0 auto 30px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px var(--accent-soft);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 { font-size: 32px; }
+      .section-header { flex-direction: column; text-align: center; }
+      .architecture { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>מדריך העלאת ScreenR לאינטרנט</h1>
+      <p>צעד אחר צעד - איך להפוך את המערכת לשירות מקוון שלקוחות ישלמו עליו</p>
+    </header>
+
+    <!-- Progress Tracker -->
+    <div class="progress-tracker">
+      <div class="progress-step"><span class="num">1</span> הכנה</div>
+      <div class="progress-step"><span class="num">2</span> שרת</div>
+      <div class="progress-step"><span class="num">3</span> העלאה</div>
+      <div class="progress-step"><span class="num">4</span> דומיין</div>
+      <div class="progress-step"><span class="num">5</span> תשלומים</div>
+      <div class="progress-step"><span class="num">6</span> שיווק</div>
+    </div>
+
+    <!-- Overview Diagram -->
+    <div class="diagram">
+      <div class="diagram-title">התמונה הגדולה - מה אנחנו בונים</div>
+      <div class="flow">
+        <div class="flow-item">
+          <div class="emoji">💻</div>
+          <div class="label">הקוד שלך</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item">
+          <div class="emoji">☁️</div>
+          <div class="label">שרת בענן</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item highlight">
+          <div class="emoji">🌐</div>
+          <div class="label">אתר חי</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-item">
+          <div class="emoji">💳</div>
+          <div class="label">לקוחות משלמים</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Preparation -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">1</div>
+        <div>
+          <h2 class="section-title">הכנת המערכת</h2>
+          <p class="section-subtitle">לפני שמעלים לאינטרנט, צריך לוודא שהכל מוכן</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">📋</span> רשימת בדיקה לפני העלאה</h3>
+        <div class="checklist">
+          <div class="check-item">
+            <div class="box">✓</div>
+            <span>הקוד ב-GitHub</span>
+          </div>
+          <div class="check-item">
+            <div class="box">✓</div>
+            <span>בדיקות עברו בהצלחה</span>
+          </div>
+          <div class="check-item">
+            <div class="box">✓</div>
+            <span>אין סיסמאות בקוד</span>
+          </div>
+          <div class="check-item">
+            <div class="box">✓</div>
+            <span>קובץ .env.example קיים</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert info">
+        <span class="icon">💡</span>
+        <div class="content">
+          <h4>מה זה GitHub?</h4>
+          <p>GitHub הוא כמו Google Drive לקוד. הוא שומר את כל הקוד שלך בענן ומאפשר להעלות אותו לשרתים בקלות.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">📁</span> מבנה הקבצים שלך</h3>
+        <div class="code-block">
+<pre>
+ScreenR/
+├── src/                    <span class="comment"># קוד המערכת</span>
+│   ├── app/               <span class="comment"># הממשק והשרת</span>
+│   ├── core/              <span class="comment"># לוגיקה ראשית</span>
+│   └── player/            <span class="comment"># נגן הסרטונים</span>
+├── package.json           <span class="comment"># הגדרות הפרויקט</span>
+├── .env.example           <span class="comment"># דוגמה להגדרות</span>
+└── .gitignore            <span class="comment"># קבצים שלא מעלים</span>
+</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Server -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">2</div>
+        <div>
+          <h2 class="section-title">בחירת שרת (Hosting)</h2>
+          <p class="section-subtitle">היכן המערכת תרוץ באינטרנט</p>
+        </div>
+      </div>
+
+      <div class="alert warning">
+        <span class="icon">⚠️</span>
+        <div class="content">
+          <h4>שים לב!</h4>
+          <p>ScreenR משתמש ב-Playwright (דפדפן אוטומטי) ולכן צריך שרת שתומך בתהליכים ארוכים, לא Serverless (כמו Vercel).</p>
+        </div>
+      </div>
+
+      <div class="pricing-diagram">
+        <div class="price-card recommended">
+          <div class="name">Railway</div>
+          <div class="price">$5</div>
+          <div class="period">קרדיט חינם להתחלה</div>
+          <div class="features">
+            ✓ חיבור ישיר ל-GitHub<br>
+            ✓ פריסה אוטומטית<br>
+            ✓ תומך ב-Playwright<br>
+            ✓ הכי קל להתחלה!
+          </div>
+        </div>
+        <div class="price-card">
+          <div class="name">Hetzner</div>
+          <div class="price">$9</div>
+          <div class="period">לחודש</div>
+          <div class="features">
+            ✓ 8GB RAM<br>
+            ✓ מחיר מעולה<br>
+            ✓ שליטה מלאה
+          </div>
+        </div>
+        <div class="price-card">
+          <div class="name">Render</div>
+          <div class="price">$7</div>
+          <div class="period">לחודש</div>
+          <div class="features">
+            ✓ קל לשימוש<br>
+            ✓ דומה ל-Railway<br>
+            ✓ תמיכה טובה
+          </div>
+        </div>
+      </div>
+
+      <div class="alert success">
+        <span class="icon">🚀</span>
+        <div class="content">
+          <h4>המלצה: התחל עם Railway</h4>
+          <p>Railway הוא הפתרון הכי קל - מחבר ישירות ל-GitHub, מזהה את הפרויקט אוטומטית, ומעלה אותו בלחיצה אחת. יש שכבה חינמית עם $5 קרדיט לחודש.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2.5: Railway Deployment -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">2.5</div>
+        <div>
+          <h2 class="section-title">העלאה ל-Railway (הדרך הקלה)</h2>
+          <p class="section-subtitle">מ-GitHub לאינטרנט ב-5 דקות</p>
+        </div>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">תהליך הפריסה ב-Railway</div>
+        <div class="flow">
+          <div class="flow-item">
+            <div class="emoji">🔗</div>
+            <div class="label">חיבור GitHub</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item">
+            <div class="emoji">📦</div>
+            <div class="label">בחירת פרויקט</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item">
+            <div class="emoji">⚙️</div>
+            <div class="label">הגדרות</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item highlight">
+            <div class="emoji">✨</div>
+            <div class="label">אונליין!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">📝</span> שלב 1: הכנת הפרויקט</h3>
+        <p>לפני שמעלים ל-Railway, צריך להוסיף שני קבצים לפרויקט:</p>
+
+        <p><strong>קובץ 1: Dockerfile</strong></p>
+        <p>צור קובץ בשם <code>Dockerfile</code> בתיקייה הראשית:</p>
+        <div class="code-block">
+<pre>FROM node:20-slim
+
+<span class="comment"># Install dependencies for Playwright</span>
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    ca-certificates \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libatspi2.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxkbcommon0 \
+    libxrandr2 \
+    xdg-utils \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+<span class="comment"># Copy package files</span>
+COPY package*.json ./
+
+<span class="comment"># Install dependencies</span>
+RUN npm install
+
+<span class="comment"># Install Playwright browsers</span>
+RUN npx playwright install chromium
+
+<span class="comment"># Copy source code</span>
+COPY . .
+
+<span class="comment"># Create data directory</span>
+RUN mkdir -p data output recordings
+
+<span class="comment"># Expose port</span>
+EXPOSE 3005
+
+<span class="comment"># Start the application</span>
+CMD ["npm", "run", "studio"]</pre>
+        </div>
+
+        <p><strong>קובץ 2: railway.json</strong></p>
+        <p>צור קובץ בשם <code>railway.json</code> בתיקייה הראשית:</p>
+        <div class="code-block">
+<pre>{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}</pre>
+        </div>
+
+        <p>לאחר מכן, דחוף את השינויים ל-GitHub:</p>
+        <div class="code-block">
+<pre><span class="command">git add Dockerfile railway.json</span>
+<span class="command">git commit -m "Add Railway deployment files"</span>
+<span class="command">git push</span></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🚀</span> שלב 2: הרשמה ל-Railway</h3>
+        <div class="steps-list">
+          <div class="step-item">
+            <h4>כניסה לאתר</h4>
+            <p>גלוש ל-<strong>railway.app</strong> ולחץ "Login" בפינה הימנית העליונה.</p>
+          </div>
+          <div class="step-item">
+            <h4>התחבר עם GitHub</h4>
+            <p>בחר "Login with GitHub" - זה יחבר את החשבונות אוטומטית.</p>
+          </div>
+          <div class="step-item">
+            <h4>קבל קרדיט חינם</h4>
+            <p>משתמשים חדשים מקבלים $5 קרדיט חינם לחודש. מספיק לבדיקות והתחלה!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">📦</span> שלב 3: יצירת פרויקט חדש</h3>
+        <div class="steps-list">
+          <div class="step-item">
+            <h4>לחץ "New Project"</h4>
+            <p>בדשבורד הראשי, לחץ על כפתור "+ New Project" הסגול.</p>
+          </div>
+          <div class="step-item">
+            <h4>בחר "Deploy from GitHub repo"</h4>
+            <p>Railway יציג את כל הריפוזיטוריות שלך. בחר את <strong>ScreenR</strong>.</p>
+          </div>
+          <div class="step-item">
+            <h4>אשר הרשאות</h4>
+            <p>אם זו הפעם הראשונה, תצטרך לאשר ל-Railway גישה לריפוזיטורי.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">⚙️</span> שלב 4: הגדרות</h3>
+        <p>לאחר שהפרויקט נוצר, לחץ עליו והגדר:</p>
+
+        <div class="steps-list">
+          <div class="step-item">
+            <h4>משתני סביבה (Variables)</h4>
+            <p>לחץ על "Variables" והוסף:<br>
+            <code>PORT=3005</code><br>
+            <code>NODE_ENV=production</code></p>
+          </div>
+          <div class="step-item">
+            <h4>הגדרת פורט</h4>
+            <p>לחץ על "Settings" → "Networking" → "Generate Domain"<br>
+            Railway ייצור לך כתובת אוטומטית כמו: <code>screenr-production.up.railway.app</code></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🎉</span> שלב 5: פריסה!</h3>
+        <p>Railway יזהה את ה-Dockerfile ויתחיל לבנות אוטומטית. תוכל לעקוב אחרי ההתקדמות בטאב "Deployments".</p>
+
+        <div class="alert success">
+          <span class="icon">✅</span>
+          <div class="content">
+            <h4>סיימת!</h4>
+            <p>אחרי כמה דקות, האפליקציה שלך תהיה זמינה בכתובת שקיבלת. כל שינוי שתדחוף ל-GitHub יופרס אוטומטית!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">💰</span> עלויות Railway</h3>
+        <table class="comparison-table">
+          <tr>
+            <th>תוכנית</th>
+            <th>מחיר</th>
+            <th>מה כלול</th>
+          </tr>
+          <tr>
+            <td><strong>Trial (חינם)</strong></td>
+            <td>$0</td>
+            <td>$5 קרדיט, 500 שעות הרצה, מושלם לבדיקות</td>
+          </tr>
+          <tr>
+            <td><strong>Hobby</strong></td>
+            <td>$5/חודש</td>
+            <td>$5 קרדיט נוסף, שימוש לפי צריכה</td>
+          </tr>
+          <tr>
+            <td><strong>Pro</strong></td>
+            <td>$20/חודש</td>
+            <td>יותר משאבים, תמיכה מועדפת</td>
+          </tr>
+        </table>
+        <p style="color: var(--text-dim); margin-top: 15px;">* העלויות מחושבות לפי שימוש בפועל. לפרויקט כמו ScreenR, צפה לשלם כ-$5-15/חודש בהתאם לשימוש.</p>
+      </div>
+
+      <div class="alert info">
+        <span class="icon">💡</span>
+        <div class="content">
+          <h4>רוצה דומיין משלך?</h4>
+          <p>ב-Settings → Domains אפשר לחבר דומיין אישי (כמו screenr.co.il) בלי צורך ב-Nginx או הגדרות מורכבות!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Deployment -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <div>
+          <h2 class="section-title">העלאה לשרת VPS (אלטרנטיבה)</h2>
+          <p class="section-subtitle">למי שמעדיף שליטה מלאה - Hetzner/DigitalOcean</p>
+        </div>
+      </div>
+
+      <div class="alert info">
+        <span class="icon">ℹ️</span>
+        <div class="content">
+          <h4>בחרת ב-Railway?</h4>
+          <p>אם כבר העלית ל-Railway בסעיף הקודם, דלג לסעיף 4 (דומיין). סעיף זה מיועד למי שמעדיף שרת VPS עם שליטה מלאה.</p>
+        </div>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">תהליך ההעלאה</div>
+        <div class="architecture">
+          <div class="arch-layer">
+            <h4>שלב 1</h4>
+            <div class="content">התחברות לשרת</div>
+            <div class="desc">SSH - גישה מרחוק</div>
+          </div>
+          <div class="arch-layer">
+            <h4>שלב 2</h4>
+            <div class="content">התקנת כלים</div>
+            <div class="desc">Node.js, Git, PM2</div>
+          </div>
+          <div class="arch-layer">
+            <h4>שלב 3</h4>
+            <div class="content">הורדת הקוד</div>
+            <div class="desc">מ-GitHub לשרת</div>
+          </div>
+          <div class="arch-layer full">
+            <h4>שלב 4</h4>
+            <div class="content">הפעלת המערכת</div>
+            <div class="desc">התקנת חבילות והרצה</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🔧</span> פקודות להעלאה (העתק והדבק)</h3>
+
+        <p><strong>שלב 1:</strong> התחבר לשרת (מהמחשב שלך)</p>
+        <div class="code-block">
+<pre><span class="command">ssh root@YOUR_SERVER_IP</span>
+<span class="comment"># הזן את הסיסמה שקיבלת במייל</span></pre>
+        </div>
+
+        <p><strong>שלב 2:</strong> התקן את הכלים הנדרשים</p>
+        <div class="code-block">
+<pre><span class="comment"># עדכון המערכת</span>
+<span class="command">apt update && apt upgrade -y</span>
+
+<span class="comment"># התקנת Node.js</span>
+<span class="command">curl -fsSL https://deb.nodesource.com/setup_20.x | bash -</span>
+<span class="command">apt install -y nodejs</span>
+
+<span class="comment"># התקנת Git</span>
+<span class="command">apt install -y git</span>
+
+<span class="comment"># התקנת PM2 (מנהל תהליכים)</span>
+<span class="command">npm install -g pm2</span>
+
+<span class="comment"># התקנת דפדפן לPlaywright</span>
+<span class="command">npx playwright install-deps chromium</span></pre>
+        </div>
+
+        <p><strong>שלב 3:</strong> הורד את הקוד מ-GitHub</p>
+        <div class="code-block">
+<pre><span class="command">cd /var/www</span>
+<span class="command">git clone https://github.com/shahartabib/ScreenR.git</span>
+<span class="command">cd ScreenR</span></pre>
+        </div>
+
+        <p><strong>שלב 4:</strong> התקן והפעל</p>
+        <div class="code-block">
+<pre><span class="comment"># התקנת חבילות</span>
+<span class="command">npm install</span>
+
+<span class="comment"># התקנת דפדפן</span>
+<span class="command">npx playwright install chromium</span>
+
+<span class="comment"># יצירת קובץ הגדרות</span>
+<span class="command">cp .env.example .env</span>
+
+<span class="comment"># הפעלת המערכת עם PM2</span>
+<span class="command">pm2 start npm --name "screenr" -- run studio</span>
+
+<span class="comment"># הפעלה אוטומטית אחרי ריסטארט</span>
+<span class="command">pm2 save</span>
+<span class="command">pm2 startup</span></pre>
+        </div>
+      </div>
+
+      <div class="alert success">
+        <span class="icon">✅</span>
+        <div class="content">
+          <h4>מעולה!</h4>
+          <p>עכשיו המערכת רצה! גלוש ל-http://YOUR_SERVER_IP:3005 כדי לראות אותה.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Domain -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">4</div>
+        <div>
+          <h2 class="section-title">חיבור דומיין ו-SSL</h2>
+          <p class="section-subtitle">כתובת אתר יפה עם מנעול ירוק (HTTPS)</p>
+        </div>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">לפני ואחרי</div>
+        <div class="flow">
+          <div class="flow-item">
+            <div class="emoji">😕</div>
+            <div class="label">http://167.86.xxx:3005</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item highlight">
+            <div class="emoji">🔒</div>
+            <div class="label">https://screenr.co.il</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🌐</span> קניית דומיין</h3>
+        <p>מקומות מומלצים לקנות דומיין:</p>
+        <ul>
+          <li><strong>Namecheap</strong> - זול ופשוט, מומלץ למתחילים ($10-15 לשנה)</li>
+          <li><strong>GoDaddy</strong> - הכי מוכר, קצת יותר יקר</li>
+          <li><strong>דומיין ישראלי (.co.il)</strong> - דרך isoc.org.il (בערך 100 ש"ח לשנה)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🔧</span> הגדרת Nginx ו-SSL</h3>
+
+        <div class="code-block">
+<pre><span class="comment"># התקנת Nginx</span>
+<span class="command">apt install -y nginx</span>
+
+<span class="comment"># התקנת Certbot (לSSL חינמי)</span>
+<span class="command">apt install -y certbot python3-certbot-nginx</span></pre>
+        </div>
+
+        <p>יצירת קובץ הגדרות:</p>
+        <div class="code-block">
+<pre><span class="command">nano /etc/nginx/sites-available/screenr</span></pre>
+        </div>
+
+        <p>הדבק את התוכן הזה (החלף YOUR_DOMAIN בדומיין שלך):</p>
+        <div class="code-block">
+<pre>server {
+    listen 80;
+    server_name YOUR_DOMAIN www.YOUR_DOMAIN;
+
+    location / {
+        proxy_pass http://localhost:3005;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}</pre>
+        </div>
+
+        <p>הפעלת ההגדרות:</p>
+        <div class="code-block">
+<pre><span class="command">ln -s /etc/nginx/sites-available/screenr /etc/nginx/sites-enabled/</span>
+<span class="command">nginx -t</span>
+<span class="command">systemctl restart nginx</span>
+
+<span class="comment"># קבלת SSL (החלף YOUR_DOMAIN)</span>
+<span class="command">certbot --nginx -d YOUR_DOMAIN -d www.YOUR_DOMAIN</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Payments -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">5</div>
+        <div>
+          <h2 class="section-title">קבלת תשלומים</h2>
+          <p class="section-subtitle">איך לקוחות ישלמו לך על השירות</p>
+        </div>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">תהליך התשלום</div>
+        <div class="flow">
+          <div class="flow-item">
+            <div class="emoji">👤</div>
+            <div class="label">לקוח נרשם</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item">
+            <div class="emoji">💳</div>
+            <div class="label">בוחר מסלול</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item">
+            <div class="emoji">🔐</div>
+            <div class="label">משלם ב-Stripe</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-item highlight">
+            <div class="emoji">✨</div>
+            <div class="label">גישה מלאה</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">💳</span> אפשרויות לקבלת תשלום</h3>
+        <table class="comparison-table">
+          <tr>
+            <th>שירות</th>
+            <th>עמלה</th>
+            <th>יתרונות</th>
+            <th>מתאים ל...</th>
+          </tr>
+          <tr>
+            <td><strong>Stripe</strong></td>
+            <td>2.9% + $0.30</td>
+            <td>הכי קל לשילוב, תמיכה מעולה</td>
+            <td>SaaS, מנויים</td>
+          </tr>
+          <tr>
+            <td><strong>PayPlus</strong></td>
+            <td>2-3%</td>
+            <td>ישראלי, תמיכה בעברית</td>
+            <td>עסקים ישראלים</td>
+          </tr>
+          <tr>
+            <td><strong>Lemon Squeezy</strong></td>
+            <td>5%</td>
+            <td>מטפל במע"מ אירופאי</td>
+            <td>מכירות גלובליות</td>
+          </tr>
+          <tr>
+            <td><strong>PayPal</strong></td>
+            <td>3.4% + קבוע</td>
+            <td>מוכר ללקוחות</td>
+            <td>תשלומים חד-פעמיים</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">📊</span> הצעה למחירון</h3>
+        <div class="pricing-diagram">
+          <div class="price-card">
+            <div class="name">בייסיק</div>
+            <div class="price">₪149</div>
+            <div class="period">לחודש</div>
+            <div class="features">
+              ✓ 5 סרטונים בחודש<br>
+              ✓ פרויקט אחד<br>
+              ✓ תמיכה במייל
+            </div>
+          </div>
+          <div class="price-card recommended">
+            <div class="name">פרו</div>
+            <div class="price">₪349</div>
+            <div class="period">לחודש</div>
+            <div class="features">
+              ✓ 20 סרטונים בחודש<br>
+              ✓ פרויקטים ללא הגבלה<br>
+              ✓ מיתוג אישי<br>
+              ✓ תמיכה מהירה
+            </div>
+          </div>
+          <div class="price-card">
+            <div class="name">ארגוני</div>
+            <div class="price">₪899</div>
+            <div class="period">לחודש</div>
+            <div class="features">
+              ✓ סרטונים ללא הגבלה<br>
+              ✓ API גישה<br>
+              ✓ תמיכה טלפונית<br>
+              ✓ הדרכה אישית
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert info">
+        <span class="icon">💡</span>
+        <div class="content">
+          <h4>טיפ חשוב</h4>
+          <p>התחל עם Stripe - הוא הכי קל לשילוב. פתח חשבון ב-stripe.com, קבל API keys, ושלב אותם במערכת.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Marketing -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">6</div>
+        <div>
+          <h2 class="section-title">שיווק והשגת לקוחות</h2>
+          <p class="section-subtitle">איך להביא את הלקוחות הראשונים</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🎯</span> קהל היעד שלך</h3>
+        <p>מי יקנה את השירות הזה?</p>
+        <ul>
+          <li><strong>חברות SaaS</strong> - צריכים סרטוני הדרכה למוצר שלהם</li>
+          <li><strong>מחלקות הדרכה בארגונים</strong> - מדריכים עובדים על מערכות פנימיות</li>
+          <li><strong>פרילנסרים</strong> - יוצרים תוכן עבור לקוחות</li>
+          <li><strong>משרדי ממשלה</strong> - נגישות דיגיטלית לאזרחים</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">📢</span> ערוצי שיווק מומלצים</h3>
+        <div class="steps-list">
+          <div class="step-item">
+            <h4>LinkedIn</h4>
+            <p>פרסם פוסטים עם דוגמאות. הרבה מקבלי החלטות נמצאים שם.</p>
+          </div>
+          <div class="step-item">
+            <h4>קבוצות פייסבוק</h4>
+            <p>הצטרף לקבוצות של יזמים, מפתחים, ומנהלי מוצר. הצע עזרה חינם.</p>
+          </div>
+          <div class="step-item">
+            <h4>Product Hunt</h4>
+            <p>השק את המוצר שם. אפשר לקבל מאות משתמשים ביום אחד.</p>
+          </div>
+          <div class="step-item">
+            <h4>שיתופי פעולה</h4>
+            <p>פנה לחברות SaaS קטנות והצע להם ליצור סרטונים בחינם.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🚀</span> תוכנית השקה מומלצת</h3>
+        <div class="architecture">
+          <div class="arch-layer">
+            <h4>שבוע 1-2</h4>
+            <div class="content">בטא סגורה</div>
+            <div class="desc">10 משתמשים חינם, אסוף פידבק</div>
+          </div>
+          <div class="arch-layer">
+            <h4>שבוע 3-4</h4>
+            <div class="content">Early Bird</div>
+            <div class="desc">50% הנחה ל-50 הראשונים</div>
+          </div>
+          <div class="arch-layer">
+            <h4>חודש 2+</h4>
+            <div class="content">השקה מלאה</div>
+            <div class="desc">מחירים רגילים, שיווק רחב</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-number">✓</div>
+        <div>
+          <h2 class="section-title">סיכום - רשימת משימות</h2>
+          <p class="section-subtitle">כל מה שצריך לעשות, בסדר הנכון</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🚀</span> הדרך המהירה (Railway)</h3>
+        <div class="checklist">
+          <div class="check-item">
+            <div class="box">1</div>
+            <span>צור Dockerfile ו-railway.json בפרויקט</span>
+          </div>
+          <div class="check-item">
+            <div class="box">2</div>
+            <span>דחוף ל-GitHub</span>
+          </div>
+          <div class="check-item">
+            <div class="box">3</div>
+            <span>התחבר ל-Railway עם GitHub</span>
+          </div>
+          <div class="check-item">
+            <div class="box">4</div>
+            <span>צור פרויקט ובחר את הריפו</span>
+          </div>
+          <div class="check-item">
+            <div class="box">5</div>
+            <span>הגדר Variables ו-Domain</span>
+          </div>
+          <div class="check-item">
+            <div class="box">6</div>
+            <span>האפליקציה אונליין! 🎉</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🛠️</span> הדרך המלאה (VPS)</h3>
+        <div class="checklist">
+          <div class="check-item">
+            <div class="box">1</div>
+            <span>פתח חשבון ב-Hetzner ויצור שרת</span>
+          </div>
+          <div class="check-item">
+            <div class="box">2</div>
+            <span>התחבר לשרת והתקן את הכלים</span>
+          </div>
+          <div class="check-item">
+            <div class="box">3</div>
+            <span>העלה את הקוד מ-GitHub</span>
+          </div>
+          <div class="check-item">
+            <div class="box">4</div>
+            <span>קנה דומיין וחבר אותו</span>
+          </div>
+          <div class="check-item">
+            <div class="box">5</div>
+            <span>הגדר SSL עם Certbot</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">💰</span> לאחר העלאה לאוויר</h3>
+        <div class="checklist">
+          <div class="check-item">
+            <div class="box">1</div>
+            <span>פתח חשבון Stripe</span>
+          </div>
+          <div class="check-item">
+            <div class="box">2</div>
+            <span>הוסף דף תמחור</span>
+          </div>
+          <div class="check-item">
+            <div class="box">3</div>
+            <span>מצא 10 משתמשי בטא</span>
+          </div>
+          <div class="check-item">
+            <div class="box">4</div>
+            <span>אסוף פידבק ושפר</span>
+          </div>
+          <div class="check-item">
+            <div class="box">5</div>
+            <span>השק! 🚀</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <h2>מוכן להתחיל?</h2>
+      <p>יש לך את כל הכלים. עכשיו רק צריך לעשות צעד אחד בכל פעם. בהצלחה!</p>
+      <a href="https://github.com/shahartabib/ScreenR" class="btn">
+        📂 לקוד ב-GitHub
+      </a>
+    </footer>
+
+  </div>
+</body>
+</html>
